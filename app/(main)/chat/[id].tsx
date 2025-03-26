@@ -30,21 +30,21 @@ interface Message {
 const mockMessages: Message[] = [
   {
     id: "1",
-    text: "Hi! I'm Reaven, your AI learning assistant. How can I help you today?",
+    text: "Hi! I'm Dr House, your assigned doctor. How can I help you today?",
     sender: "other",
     timestamp: "2:30 PM",
     status: "read",
   },
   {
     id: "2",
-    text: "I need help with my math homework",
+    text: "I treated your headache and cough",
     sender: "user",
     timestamp: "2:31 PM",
     status: "read",
   },
   {
     id: "3",
-    text: "Of course! What topic are you working on? I can help you with algebra, calculus, or any other math subject.",
+    text: "I have no sessions today",
     sender: "other",
     timestamp: "2:32 PM",
     status: "read",

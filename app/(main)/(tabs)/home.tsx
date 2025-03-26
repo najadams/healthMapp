@@ -83,12 +83,12 @@ export default function HomeScreen() {
             <QuickAction
               icon="document-text-outline"
               title="Log Symptoms"
-              onPress={() => {}}
+              onPress={() => router.push("/log-symptoms")}
             />
             <QuickAction
               icon="journal-outline"
               title="Journal Entry"
-              onPress={() => {}}
+              onPress={() => router.push("/journal-entry")}
             />
             <QuickAction
               icon="library-outline"
