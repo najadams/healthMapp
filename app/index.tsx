@@ -1,14 +1,5 @@
 import { Redirect } from "expo-router";
-import React from "react";
-import { useUser } from "@/context/UserContext";
-import { UserStateType } from "@/constants/types";
 
-interface PageProps {
-  onUserUpdated: (user: UserStateType) => void;
-}
-
-const Page = () => {
+export default function Index() {
   return <Redirect href="/(auth)/auth" />;
-};
-
-export default Page;
+}
