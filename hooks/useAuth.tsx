@@ -57,7 +57,7 @@
 
 
 import { useEffect } from "react";
-import {auth } from "../firebaseConfig";
+import {auth } from "../firebaseConfigrm";
 import { onAuthStateChanged } from "firebase/auth";
 import { useUser } from "../context/UserContext";
 import { useRouter } from "expo-router";

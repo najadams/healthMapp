@@ -1,17 +1,13 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { useColorScheme } from "@/hooks/useColorScheme"; // If you use color scheme
-import AuthGuard from "./AuthGuard"; // Ensure correct import
+import { Stack } from "expo-router";
+import { UserProvider } from "@/context/UserContext";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme(); // Get the theme mode (dark/light)
-
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <AuthGuard />
-    </ThemeProvider>
+    <UserProvider initialUser={null}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)/auth" />
+        <Stack.Screen name="(main)" />
+      </Stack>
+    </UserProvider>
   );
 }

@@ -13,7 +13,6 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useUser, useSetUser } from "@/context/UserContext";
 import { useRouter } from "expo-router";
-import { auth, db } from "@/firebaseConfig";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";

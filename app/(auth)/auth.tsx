@@ -20,14 +20,8 @@ import {
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-import { authInstance, db } from "@/firebaseConfig";
 import { useRouter } from "expo-router";
 import { useSetUser } from "@/context/UserContext";
-import { doc, setDoc } from "firebase/firestore";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
@@ -71,58 +65,38 @@ const AuthScreen = () => {
       setIsLoading(true);
       setError("");
 
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       if (isSignUp) {
-        // const userCredential = await createUserWithEmailAndPassword(
-        //   authInstance,
-        //   values.email,
-        //   values.password
-        // );
-        // const user = userCredential.user;
-
-        // await setDoc(doc(db, "users", user.uid), {
-        //   name: values.name,
-        //   email: values.email,
-        //   username: values.username,
-        //   phone: values.phone,
-        //   role: "user",
-        //   createdAt: new Date(),
-        //   updatedAt: new Date(),
-        // });
-
-        // setUser({
-        //   name: values.name || "",
-        //   email: values.email,
-        //   phone: values.phone || "",
-        //   emailverified: user.emailVerified,
-        //   isanonymous: user.isAnonymous,
-        //   role: "user",
-        //   profilePicture: "https://via.placeholder.com/150",
-        // });
-
+        // Simulate successful registration
+        setUser({
+          name: values.name || "",
+          email: values.email,
+          phone: values.phone || "",
+          emailverified: true,
+          isanonymous: false,
+          role: "user",
+          profilePicture: "https://via.placeholder.com/150",
+        });
         setIsSignUp(false);
       } else {
-        // const userCredential = await signInWithEmailAndPassword(
-        //   authInstance,
-        //   values.email,
-        //   values.password
-        // );
-        // const user = userCredential.user;
-
-        // setUser({
-        //   name: user.displayName || "User",
-        //   email: user.email || "",
-        //   role: "user",
-        //   phone: user.phoneNumber || "",
-        //   emailverified: user.emailVerified,
-        //   isanonymous: user.isAnonymous,
-        //   profilePicture: user.photoURL || "https://via.placeholder.com/150",
-        // });
+        // Simulate successful login
+        setUser({
+          name: values.email.split("@")[0],
+          email: values.email,
+          role: "user",
+          phone: "",
+          emailverified: true,
+          isanonymous: false,
+          profilePicture: "https://via.placeholder.com/150",
+        });
 
         router.replace("/(main)/(tabs)/home");
       }
     } catch (error: any) {
       console.error(error);
-      setError(error.message);
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

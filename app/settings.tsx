@@ -12,7 +12,6 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useUser, useSetUser } from "@/context/UserContext";
 import { useRouter } from "expo-router";
-import { auth } from "@/firebaseConfig";
 import { signOut } from "firebase/auth";
 
 const Settings = () => {
