@@ -8,7 +8,7 @@ interface PageProps {
 }
 
 const Page = () => {
-  return <Redirect href="/(main)/(tabs)/home" />;
+  return <Redirect href="/(auth)/auth" />;
 };
 
 export default Page;

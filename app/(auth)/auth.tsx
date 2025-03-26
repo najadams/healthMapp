@@ -72,51 +72,51 @@ const AuthScreen = () => {
       setError("");
 
       if (isSignUp) {
-        const userCredential = await createUserWithEmailAndPassword(
-          authInstance,
-          values.email,
-          values.password
-        );
-        const user = userCredential.user;
+        // const userCredential = await createUserWithEmailAndPassword(
+        //   authInstance,
+        //   values.email,
+        //   values.password
+        // );
+        // const user = userCredential.user;
 
-        await setDoc(doc(db, "users", user.uid), {
-          name: values.name,
-          email: values.email,
-          username: values.username,
-          phone: values.phone,
-          role: "user",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+        // await setDoc(doc(db, "users", user.uid), {
+        //   name: values.name,
+        //   email: values.email,
+        //   username: values.username,
+        //   phone: values.phone,
+        //   role: "user",
+        //   createdAt: new Date(),
+        //   updatedAt: new Date(),
+        // });
 
-        setUser({
-          name: values.name || "",
-          email: values.email,
-          phone: values.phone || "",
-          emailverified: user.emailVerified,
-          isanonymous: user.isAnonymous,
-          role: "user",
-          profilePicture: "https://via.placeholder.com/150",
-        });
+        // setUser({
+        //   name: values.name || "",
+        //   email: values.email,
+        //   phone: values.phone || "",
+        //   emailverified: user.emailVerified,
+        //   isanonymous: user.isAnonymous,
+        //   role: "user",
+        //   profilePicture: "https://via.placeholder.com/150",
+        // });
 
         setIsSignUp(false);
       } else {
-        const userCredential = await signInWithEmailAndPassword(
-          authInstance,
-          values.email,
-          values.password
-        );
-        const user = userCredential.user;
+        // const userCredential = await signInWithEmailAndPassword(
+        //   authInstance,
+        //   values.email,
+        //   values.password
+        // );
+        // const user = userCredential.user;
 
-        setUser({
-          name: user.displayName || "User",
-          email: user.email || "",
-          role: "user",
-          phone: user.phoneNumber || "",
-          emailverified: user.emailVerified,
-          isanonymous: user.isAnonymous,
-          profilePicture: user.photoURL || "https://via.placeholder.com/150",
-        });
+        // setUser({
+        //   name: user.displayName || "User",
+        //   email: user.email || "",
+        //   role: "user",
+        //   phone: user.phoneNumber || "",
+        //   emailverified: user.emailVerified,
+        //   isanonymous: user.isAnonymous,
+        //   profilePicture: user.photoURL || "https://via.placeholder.com/150",
+        // });
 
         router.replace("/(main)/(tabs)/home");
       }
@@ -135,7 +135,7 @@ const AuthScreen = () => {
         style={styles.content}>
         <View style={styles.header}>
           <Image
-            source={require("@/assets/images/mental-health.png")}
+            source={require("@/assets/images/avatar.jpg")}
             style={styles.logo}
             resizeMode="contain"
           />

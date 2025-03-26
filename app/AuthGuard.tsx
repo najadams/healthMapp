@@ -31,7 +31,8 @@ export default function AuthGuard() {
         });
 
         setCheckingAuth(false);
-        router.replace("/(main)/(tabs)/home");
+        // router.replace("/(main)/(tabs)/home");
+        router.replace("/(auth)/auth");
       } else {
         setCheckingAuth(false);
         router.replace("/(auth)/auth");
