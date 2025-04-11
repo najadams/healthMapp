@@ -1,18 +1,15 @@
 import { Tabs } from "expo-router";
-import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        
-        tabBarActiveTintColor: "#6200ee", // iOS blue
-        tabBarInactiveTintColor: "#8E8E93",
+        tabBarActiveTintColor: "#007AFF",
+        tabBarInactiveTintColor: "#666",
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
           borderTopWidth: 1,
-          borderTopColor: "#E5E5EA",
+          borderTopColor: "#f0f0f0",
         },
       }}>
       <Tabs.Screen
@@ -26,22 +23,23 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="chat"
-        options={{
-          title: "Chats",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbox-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="track"
         options={{
           title: "Track",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+            <Ionicons name="bar-chart-outline" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: "Chat",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbox-outline" size={size} color={color} />
           ),
         }}
       />
@@ -51,7 +49,7 @@ export default function TabLayout() {
           title: "Settings",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" size={size} color={color} />
+            <Ionicons name="settings-outline" size={size} color={color} />
           ),
         }}
       />
