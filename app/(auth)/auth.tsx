@@ -21,7 +21,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import { useSetUser } from "@/context/UserContext";
+import { useSetUser, UserContextType } from "@/context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
@@ -76,19 +76,12 @@ const AuthScreen = () => {
       setError("");
 
       const endpoint = isSignUp ? "/api/auth/register" : "/api/auth/login";
-      const loginData = isSignUp
-        ? values
-        : {
-            email: values.email, // Send the input as email, backend will check both email and username
-            password: values.password,
-          };
-
       const response = await fetch(`http://localhost:3001${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(isSignUp ? values : loginData),
+        body: JSON.stringify(values),
       });
 
       const data = await response.json();
@@ -98,27 +91,25 @@ const AuthScreen = () => {
       }
 
       if (isSignUp) {
-        // After successful registration, switch to login mode
         setIsSignUp(false);
         setError("Registration successful! Please login.");
       } else {
-        // After successful login, update user context and navigate
         console.log("Login successful, user data:", data.user);
-        setUser({
+        const userData: UserContextType = {
           name: data.user.name,
+          username: data.user.username || data.user.email.split("@")[0],
           email: data.user.email,
-          role: data.user.role || "user",
           phone: data.user.phone || "",
-          profilePicture:
-            data.user.profilePicture || "https://via.placeholder.com/150",
           emailverified: data.user.emailVerified || false,
           isanonymous: false,
-        });
+          role: data.user.role || "user",
+          profilePicture:
+            data.user.profilePicture || "https://via.placeholder.com/150",
+        };
+        setUser(userData);
 
-        setUser(data.user);
         try {
           router.replace("/(main)/(tabs)/home");
-          console.log("Navigation successful");
         } catch (navError) {
           console.error("Navigation error:", navError);
           setError("Failed to navigate to main screen");

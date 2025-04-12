@@ -34,6 +34,7 @@ export default function HomeScreen() {
   const user = useUser();
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  console.log(user);
 
   const QuickAction = ({ icon, title, onPress }: QuickActionProps) => (
     <TouchableOpacity style={styles.quickAction} onPress={onPress}>

@@ -1,4 +1,4 @@
-import { UserProvider, useUser } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext";
 import { Stack, Redirect } from "expo-router";
 import React from "react";
 import { SafeAreaView } from "react-native";
@@ -6,9 +6,9 @@ import { SafeAreaView } from "react-native";
 function ProtectedLayout() {
   const user = useUser();
 
-  // if (!user) {
-  //   return <Redirect href="/(auth)/auth" />;
-  // }
+  if (!user) {
+    return <Redirect href="/(auth)/auth" />;
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -26,9 +26,5 @@ function ProtectedLayout() {
 }
 
 export default function MainLayout() {
-  return (
-    <UserProvider>
-      <ProtectedLayout />
-    </UserProvider>
-  );
+  return <ProtectedLayout />;
 }
