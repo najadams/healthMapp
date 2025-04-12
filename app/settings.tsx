@@ -12,16 +12,26 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useUser, useSetUser } from "@/context/UserContext";
 import { useRouter } from "expo-router";
-import { signOut } from "firebase/auth";
 
 const Settings = () => {
-  const user = useUser()
-  const setUser = useSetUser()
+  const user = useUser();
+  const setUser = useSetUser();
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      const response = await fetch("http://localhost:5001/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Important for handling cookies/session
+      });
+
+      if (!response.ok) {
+        throw new Error("Logout failed");
+      }
+
       setUser(null);
       router.replace("/(auth)/auth");
     } catch (error) {
@@ -40,40 +50,42 @@ const Settings = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <MaterialIcons name="arrow-back" size={24} color="#000" />
-      </TouchableOpacity>
-
-      {/* Profile Picture Section */}
-      <View style={styles.profileSection}>
-        <Image
-          source={{ uri: user.profilePicture }}
-          style={styles.profileImage}
-        />
-        <TouchableOpacity style={styles.editIcon}>
-          <MaterialIcons name="edit" size={24} color="#007BFF" />
-        </TouchableOpacity>
-      </View>
-
-      {/* User Details Section */}
-      <View style={styles.detailsSection}>
-        <Text style={styles.userName}>{user.name}</Text>
-        <Text style={styles.userEmail}>{user.email}</Text>
-        <Text style={styles.userRole}>Role: {user.role}</Text>
-      </View>
-
-      {/* Quick Actions Section */}
-      <View style={styles.actionsSection}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
+        {/* Back Button */}
         <TouchableOpacity
-          style={[styles.actionButton, styles.logoutButton]}
-          onPress={handleLogout}>
-          <Text style={styles.actionButtonText}>Log Out</Text>
+          style={styles.backButton}
+          onPress={() => router.back()}>
+          <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-      </View>
+
+        {/* Profile Picture Section */}
+        <View style={styles.profileSection}>
+          <Image
+            source={{ uri: user.profilePicture }}
+            style={styles.profileImage}
+          />
+          <TouchableOpacity style={styles.editIcon}>
+            <MaterialIcons name="edit" size={24} color="#007BFF" />
+          </TouchableOpacity>
+        </View>
+
+        {/* User Details Section */}
+        <View style={styles.detailsSection}>
+          <Text style={styles.userName}>{user.name}</Text>
+          <Text style={styles.userEmail}>{user.email}</Text>
+          <Text style={styles.userRole}>Role: {user.role}</Text>
+        </View>
+
+        {/* Quick Actions Section */}
+        <View style={styles.actionsSection}>
+          <TouchableOpacity style={styles.actionButton}>
+            <Text style={styles.actionButtonText}>Edit Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.logoutButton]}
+            onPress={handleLogout}>
+            <Text style={styles.actionButtonText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,18 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 export interface User {
-  uid: string;
   name: string;
   email: string;
   role: string;
   profilePicture?: string;
   phone?: string;
-  bio?: string;
-  location?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 export interface UserContextType {
@@ -36,35 +29,24 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", firebaseUser.uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            setUser({
-              uid: firebaseUser.uid,
-              name: userData.name || "",
-              email: userData.email || "",
-              role: userData.role || "student",
-              profilePicture: userData.profilePicture,
-              phone: userData.phone,
-              bio: userData.bio,
-              location: userData.location,
-              createdAt: userData.createdAt?.toDate(),
-              updatedAt: userData.updatedAt?.toDate(),
-            });
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/auth/me", {
+          credentials: "include",
+        });
 
-    return () => unsubscribe();
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   return (

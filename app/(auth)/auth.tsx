@@ -65,38 +65,43 @@ const AuthScreen = () => {
       setIsLoading(true);
       setError("");
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const endpoint = isSignUp ? "/api/auth/register" : "/api/auth/login";
+      const response = await fetch(`http://localhost:3001${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.log(data.error);
+        throw new Error(data.error || "Authentication failed");
+      }
 
       if (isSignUp) {
-        // Simulate successful registration
-        setUser({
-          name: values.name || "",
-          email: values.email,
-          phone: values.phone || "",
-          emailverified: true,
-          isanonymous: false,
-          role: "user",
-          profilePicture: "https://via.placeholder.com/150",
-        });
+        // After successful registration, switch to login mode
         setIsSignUp(false);
+        setError("Registration successful! Please login.");
       } else {
-        // Simulate successful login
+        // After successful login, update user context and navigate
         setUser({
-          name: values.email.split("@")[0],
-          email: values.email,
-          role: "user",
-          phone: "",
-          emailverified: true,
+          name: data.user.name,
+          email: data.user.email,
+          phone: data.user.phone || "",
+          emailverified: data.user.emailVerified,
           isanonymous: false,
-          profilePicture: "https://via.placeholder.com/150",
+          role: data.user.role || "user",
+          profilePicture:
+            data.user.profilePicture || "https://via.placeholder.com/150",
         });
-
         router.replace("/(main)/(tabs)/home");
       }
     } catch (error: any) {
       console.error(error);
-      setError("An error occurred. Please try again.");
+      setError(error.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
