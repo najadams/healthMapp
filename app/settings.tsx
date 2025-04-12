@@ -20,7 +20,7 @@ const Settings = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/auth/logout", {
+      const response = await fetch("http://localhost:3001/api/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

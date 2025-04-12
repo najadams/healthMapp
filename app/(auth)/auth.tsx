@@ -39,7 +39,17 @@ const AuthScreen = () => {
   }, [navigation]);
 
   const validationSchema = Yup.object().shape({
-    email: Yup.string().email("Invalid email").required("Required"),
+    email: Yup.string()
+      .test(
+        "is-email-or-username",
+        "Invalid email or username",
+        function (value) {
+          if (!value) return false;
+          // Allow either email format or username format (3+ characters)
+          return Yup.string().email().isValidSync(value) || value.length >= 3;
+        }
+      )
+      .required("Required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .required("Required"),
@@ -66,18 +76,24 @@ const AuthScreen = () => {
       setError("");
 
       const endpoint = isSignUp ? "/api/auth/register" : "/api/auth/login";
+      const loginData = isSignUp
+        ? values
+        : {
+            email: values.email, // Send the input as email, backend will check both email and username
+            password: values.password,
+          };
+
       const response = await fetch(`http://localhost:3001${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(isSignUp ? values : loginData),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        console.log(data.error);
         throw new Error(data.error || "Authentication failed");
       }
 
@@ -87,17 +103,26 @@ const AuthScreen = () => {
         setError("Registration successful! Please login.");
       } else {
         // After successful login, update user context and navigate
+        console.log("Login successful, user data:", data.user);
         setUser({
           name: data.user.name,
           email: data.user.email,
-          phone: data.user.phone || "",
-          emailverified: data.user.emailVerified,
-          isanonymous: false,
           role: data.user.role || "user",
+          phone: data.user.phone || "",
           profilePicture:
             data.user.profilePicture || "https://via.placeholder.com/150",
+          emailverified: data.user.emailVerified || false,
+          isanonymous: false,
         });
-        router.replace("/(main)/(tabs)/home");
+
+        setUser(data.user);
+        try {
+          router.replace("/(main)/(tabs)/home");
+          console.log("Navigation successful");
+        } catch (navError) {
+          console.error("Navigation error:", navError);
+          setError("Failed to navigate to main screen");
+        }
       }
     } catch (error: any) {
       console.error(error);
@@ -201,13 +226,13 @@ const AuthScreen = () => {
                 )}
 
                 <TextInput
-                  label="Email"
+                  label="Email or Username"
                   mode="outlined"
                   left={<TextInput.Icon icon="email" />}
                   onChangeText={handleChange("email")}
                   onBlur={handleBlur("email")}
                   value={values.email}
-                  error={touched.email && !!errors.email}
+                  error={touched.email}
                   style={styles.input}
                   keyboardType="email-address"
                   autoCapitalize="none"

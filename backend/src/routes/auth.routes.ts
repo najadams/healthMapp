@@ -7,7 +7,7 @@ const router = express.Router();
 // Register
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email,username, password, phone } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -21,6 +21,7 @@ router.post("/register", async (req, res) => {
       email,
       password,
       phone,
+      username,
     });
 
     await user.save();
@@ -44,9 +45,8 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
-    console.log("tried the api call", email, password);
-    const user = await User.findOne({ email });
+    // Find user by email or username
+    const user = await User.findOne({ $or: [{ email }, { username: email}] });
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }

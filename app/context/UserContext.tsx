@@ -6,6 +6,8 @@ export interface User {
   role: string;
   profilePicture?: string;
   phone?: string;
+  emailverified?: boolean;
+  isanonymous?: boolean;
 }
 
 export interface UserContextType {
