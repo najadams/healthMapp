@@ -40,39 +40,23 @@ const AuthScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
-  // Add this to your AuthScreen component
   useEffect(() => {
-    setIsLoadingUser(true);
     const checkExistingAuth = async () => {
       try {
-        // Check if we have both token and user data
         const [token, userData] = await Promise.all([
           AsyncStorage.getItem("token"),
           AsyncStorage.getItem("userData"),
         ]);
 
-        console.log(
-          "Checking existing auth - Token:",
-          token ? "exists" : "missing"
-        );
-        console.log(
-          "Checking existing auth - UserData:",
-          userData ? "exists" : "missing"
-        );
-
         if (token && userData) {
-          // User is already logged in
           const parsedUserData = JSON.parse(userData);
-          setUser(parsedUserData); // Update the context
-
-          setIsLoading(false);
-          // Navigate to home
-          console.log("User already logged in, navigating to home...");
+          setUser(parsedUserData);
           router.replace("/(main)/(tabs)/home");
         }
       } catch (error) {
-        setIsLoadingUser(false);
         console.error("Error checking authentication status:", error);
+      } finally {
+        setIsLoadingUser(false); // Always set loading to false when done
       }
     };
 
@@ -105,6 +89,7 @@ const AuthScreen = () => {
     }),
   });
 
+  // Update handleSubmit to store userData in AsyncStorage
   const handleSubmit = async (values: {
     email: string;
     password: string;
@@ -135,37 +120,14 @@ const AuthScreen = () => {
         setIsSignUp(false);
         setError("Registration successful! Please login.");
       } else {
-        console.log("Login successful, user data:", data.user);
-        console.log("Received token:", data.token);
+        // Store both token and userData
+        await Promise.all([
+          AsyncStorage.setItem("token", data.token),
+          AsyncStorage.setItem("userData", JSON.stringify(userData)),
+        ]);
 
-        // Store the token in AsyncStorage
-        if (data.token) {
-          await AsyncStorage.setItem("token", data.token);
-          console.log("Token stored successfully");
-        } else {
-          console.warn("No token received in login response");
-        }
-
-        const userData: UserContextType = {
-          name: data.user.name,
-          username: data.user.username || data.user.email.split("@")[0],
-          token: data.token,
-          email: data.user.email,
-          phone: data.user.phone || "",
-          emailverified: data.user.emailVerified || false,
-          isanonymous: false,
-          role: data.user.role || "user",
-          profilePicture:
-            data.user.profilePicture || "https://via.placeholder.com/150",
-        };
         setUser(userData);
-
-        try {
-          router.replace("/(main)/(tabs)/home");
-        } catch (navError) {
-          console.error("Navigation error:", navError);
-          setError("Failed to navigate to main screen");
-        }
+        router.replace("/(main)/(tabs)/home");
       }
     } catch (error: any) {
       console.error(error);
