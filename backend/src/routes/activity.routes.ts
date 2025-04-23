@@ -92,6 +92,7 @@ router.get("/history", auth, async (req: AuthRequest, res: Response) => {
       ActivityLog.countDocuments(query),
     ]);
 
+    console.log(activityLogs)
     res.json({
       success: true,
       data: activityLogs,

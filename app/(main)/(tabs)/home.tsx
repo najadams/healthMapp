@@ -66,8 +66,9 @@ export default function HomeScreen() {
       ]);
 
       setMoodEntries(entries);
-      setActivityLogs(activities);
-      setMoodTrends(trends);
+      setActivityLogs(activities.data.slice(0, 5));
+      setMoodTrends(trends)
+      console.log(Object.keys(activities.data))
     } catch (err) {
       setError("Failed to load data. Please try again later.");
       console.error("Error fetching data:", err);
@@ -215,35 +216,39 @@ export default function HomeScreen() {
                     style={[
                       styles.progressBar,
                       {
-                        width: `${(activityLogs.length / 2) * 100}%`,
+                        width: `${(activityLogs.length / 5) * 100}%`,
                       },
                     ]}
                   />
                 </View>
                 <Text style={styles.progressCount}>
-                  {activityLogs.length}/2
+                  {activityLogs.length}/5
                 </Text>
               </View>
             </View>
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Recent Activities</Text>
-              {activityLogs.slice(0, 2).map((activity) => (
-                <View key={activity._id} style={styles.upcomingItem}>
-                  <Ionicons name="fitness-outline" size={24} color="#666" />
-                  <View style={styles.upcomingContent}>
-                    <Text style={styles.upcomingTitle}>
-                      {activity.activityType}
-                    </Text>
-                    <Text style={styles.upcomingDetails}>
-                      {activity.duration} minutes
+              {Array.isArray(activityLogs) && activityLogs.length > 0 ? (
+                activityLogs.slice(0, 5).map((activity) => (
+                  <View key={activity._id} style={styles.upcomingItem}>
+                    <Ionicons name="fitness-outline" size={24} color="#666" />
+                    <View style={styles.upcomingContent}>
+                      <Text style={styles.upcomingTitle}>
+                        {activity.activityType}
+                      </Text>
+                      <Text style={styles.upcomingDetails}>
+                        {activity.duration} minutes
+                      </Text>
+                    </View>
+                    <Text style={styles.upcomingTime}>
+                      {new Date(activity.createdAt).toLocaleDateString()}
                     </Text>
                   </View>
-                  <Text style={styles.upcomingTime}>
-                    {new Date(activity.createdAt).toLocaleDateString()}
-                  </Text>
-                </View>
-              ))}
+                ))
+              ) : (
+                <Text style={styles.upcomingDetails}>No recent activities</Text>
+              )}
             </View>
       </View>
     </ScrollView>

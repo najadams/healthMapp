@@ -15,31 +15,49 @@ export const fetchUserProfile = async () => {
 };
 
 export const fetchMoodEntries = async () => {
-  const token = await AsyncStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/mood/entries`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!response.ok) throw new Error("Failed to fetch mood entries");
-  return response.json();
+  try {
+    const token = await AsyncStorage.getItem("token");
+    
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/mood/entries`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Mood entries fetch failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+      throw new Error(errorData.message || "Failed to fetch mood entries");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error in fetchMoodEntries:", error);
+    throw error;
+  }
 };
 
 export const fetchActivityHistory = async () => {
   try {
     const token = await AsyncStorage.getItem("token");
-    console.log(
-      "Fetching activity history with token:",
-      token ? "present" : "missing"
-    );
-
+    
     if (!token) {
       throw new Error("No authentication token found");
     }
 
-    const response = await fetch(`${API_BASE_URL}/activity/history`, {
+    const response = await fetch(`${API_BASE_URL}/activities/history`, { // Changed from activity to activities
       headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
     });
 
