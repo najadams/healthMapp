@@ -23,6 +23,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useSetUser, UserContextType } from "@/context/UserContext";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
@@ -30,6 +31,7 @@ const AuthScreen = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const setUser = useSetUser();
   const navigation = useNavigation();
   const router = useRouter();
@@ -37,6 +39,45 @@ const AuthScreen = () => {
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
+
+  // Add this to your AuthScreen component
+  useEffect(() => {
+    setIsLoadingUser(true);
+    const checkExistingAuth = async () => {
+      try {
+        // Check if we have both token and user data
+        const [token, userData] = await Promise.all([
+          AsyncStorage.getItem("token"),
+          AsyncStorage.getItem("userData"),
+        ]);
+
+        console.log(
+          "Checking existing auth - Token:",
+          token ? "exists" : "missing"
+        );
+        console.log(
+          "Checking existing auth - UserData:",
+          userData ? "exists" : "missing"
+        );
+
+        if (token && userData) {
+          // User is already logged in
+          const parsedUserData = JSON.parse(userData);
+          setUser(parsedUserData); // Update the context
+
+          setIsLoading(false);
+          // Navigate to home
+          console.log("User already logged in, navigating to home...");
+          router.replace("/(main)/(tabs)/home");
+        }
+      } catch (error) {
+        setIsLoadingUser(false);
+        console.error("Error checking authentication status:", error);
+      }
+    };
+
+    checkExistingAuth();
+  }, []);
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -95,9 +136,20 @@ const AuthScreen = () => {
         setError("Registration successful! Please login.");
       } else {
         console.log("Login successful, user data:", data.user);
+        console.log("Received token:", data.token);
+
+        // Store the token in AsyncStorage
+        if (data.token) {
+          await AsyncStorage.setItem("token", data.token);
+          console.log("Token stored successfully");
+        } else {
+          console.warn("No token received in login response");
+        }
+
         const userData: UserContextType = {
           name: data.user.name,
           username: data.user.username || data.user.email.split("@")[0],
+          token: data.token,
           email: data.user.email,
           phone: data.user.phone || "",
           emailverified: data.user.emailVerified || false,
@@ -122,6 +174,16 @@ const AuthScreen = () => {
       setIsLoading(false);
     }
   };
+
+  if(isLoadingUser) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>

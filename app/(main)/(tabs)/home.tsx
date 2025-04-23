@@ -5,11 +5,18 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUser } from "@/context/UserContext";
+import {
+  fetchMoodEntries,
+  fetchActivityHistory,
+  fetchMoodTrends,
+} from "@/utils/api";
+import { MoodEntry, ActivityLog, MoodTrend } from "@/types";
 
 interface MoodOption {
   id: string;
@@ -34,7 +41,49 @@ export default function HomeScreen() {
   const user = useUser();
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  console.log(user);
+  const [moodEntries, setMoodEntries] = useState<MoodEntry[]>([]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [moodTrends, setMoodTrends] = useState<Record<string, MoodTrend>>({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      console.log("Token:", user ? "Found" : "Not found");
+      setIsLoading(true);
+      setError(null);
+
+      // Get today's date range for mood trends
+      const today = new Date();
+      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+      const [entries, activities, trends] = await Promise.all([
+        fetchMoodEntries(),
+        fetchActivityHistory(),
+        fetchMoodTrends(startDate, endDate),
+      ]);
+
+      setMoodEntries(entries);
+      setActivityLogs(activities);
+      setMoodTrends(trends);
+    } catch (err) {
+      setError("Failed to load data. Please try again later.");
+      console.error("Error fetching data:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const onRefresh = async () => {
+     setRefreshing(true);
+     await fetchData();
+   };
+
 
   const QuickAction = ({ icon, title, onPress }: QuickActionProps) => (
     <TouchableOpacity style={styles.quickAction} onPress={onPress}>
@@ -43,13 +92,47 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Loading your data...</Text>
+      </View>
+    );
+  }
+
+  // if (error) {
+  //   console.log(Object.keys(error));
+  //   return (
+  //     <View style={styles.errorContainer}>
+  //       <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />
+  //       <Text style={styles.errorText}>{error}</Text>
+  //       <TouchableOpacity
+  //         style={styles.retryButton}
+  //         onPress={() => router.replace("/(main)/(tabs)/home")}>
+  //         <Text style={styles.retryButtonText}>Retry</Text>
+  //       </TouchableOpacity>
+  //     </View>
+  //   );
+  // }
+
+  const isNewUser = moodEntries.length === 0 && activityLogs.length === 0;
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container}
+      refreshControl={
+        <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        colors={["#007AFF"]}
+        progressBackgroundColor="#f5f5f5"
+        />}
+    >
       <View style={styles.welcomeSection}>
         <View style={styles.welcomeHeader}>
           <View style={styles.userInfo}>
             <Text style={styles.welcomeText}>Welcome back</Text>
-            <Text style={styles.userName}>{user?.name || "Sarah Johnson"}</Text>
+            <Text style={styles.userName}>{user?.name || "User"}</Text>
           </View>
           <TouchableOpacity>
             <Ionicons name="notifications-outline" size={24} color="#000" />
@@ -78,77 +161,111 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.quickActionsGrid}>
-            <QuickAction
-              icon="document-text-outline"
-              title="Log Symptoms"
-              onPress={() => router.push("/log-symptoms")}
-            />
-            <QuickAction
-              icon="journal-outline"
-              title="Journal Entry"
-              onPress={() => router.push("/journal-entry")}
-            />
-            <QuickAction
-              icon="library-outline"
-              title="Resources"
-              onPress={() => {}}
-            />
-            <QuickAction
-              icon="people-outline"
-              title="Get Support"
-              onPress={() => {}}
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Daily Progress</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View All</Text>
+        {isNewUser ? (
+          <View style={styles.newUserSection}>
+            <Text style={styles.newUserTitle}>
+              Welcome to Your Wellness Journey!
+            </Text>
+            <Text style={styles.newUserText}>
+              Start tracking your mood and activities to see your progress over
+              time.
+            </Text>
+            <TouchableOpacity
+              style={styles.getStartedButton}
+              onPress={() => router.push("/log-symptoms")}>
+              <Text style={styles.getStartedButtonText}>Get Started</Text>
             </TouchableOpacity>
           </View>
-
-          <View style={styles.progressItem}>
-            <Text style={styles.progressLabel}>Mood Logs</Text>
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "75%" }]} />
+        ) : (
+          <>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Quick Actions</Text>
+              <View style={styles.quickActionsGrid}>
+                <QuickAction
+                  icon="document-text-outline"
+                  title="Log Symptoms"
+                  onPress={() => router.push("/log-symptoms")}
+                />
+                <QuickAction
+                  icon="journal-outline"
+                  title="Journal Entry"
+                  onPress={() => router.push("/journal-entry")}
+                />
+                <QuickAction
+                  icon="library-outline"
+                  title="Resources"
+                  onPress={() => {}}
+                />
+                <QuickAction
+                  icon="people-outline"
+                  title="Get Support"
+                  onPress={() => {}}
+                />
+              </View>
             </View>
-            <Text style={styles.progressCount}>3/4</Text>
-          </View>
 
-          <View style={styles.progressItem}>
-            <Text style={styles.progressLabel}>Journal Entries</Text>
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: "50%" }]} />
-            </View>
-            <Text style={styles.progressCount}>1/2</Text>
-          </View>
-        </View>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Daily Progress</Text>
+                <TouchableOpacity>
+                  <Text style={styles.viewAll}>View All</Text>
+                </TouchableOpacity>
+              </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming</Text>
-          <View style={styles.upcomingItem}>
-            <Ionicons name="calendar-outline" size={24} color="#666" />
-            <View style={styles.upcomingContent}>
-              <Text style={styles.upcomingTitle}>Therapy Session</Text>
-              <Text style={styles.upcomingDetails}>2:00 PM with Dr. Smith</Text>
-            </View>
-            <Text style={styles.upcomingTime}>Tomorrow</Text>
-          </View>
+              <View style={styles.progressItem}>
+                <Text style={styles.progressLabel}>Mood Logs</Text>
+                <View style={styles.progressBarContainer}>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      {
+                        width: `${(moodEntries.length / 4) * 100}%`,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.progressCount}>{moodEntries.length}/4</Text>
+              </View>
 
-          <View style={styles.upcomingItem}>
-            <Ionicons name="alarm-outline" size={24} color="#666" />
-            <View style={styles.upcomingContent}>
-              <Text style={styles.upcomingTitle}>Medication Reminder</Text>
-              <Text style={styles.upcomingDetails}>8:00 PM - Evening dose</Text>
+              <View style={styles.progressItem}>
+                <Text style={styles.progressLabel}>Activity Logs</Text>
+                <View style={styles.progressBarContainer}>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      {
+                        width: `${(activityLogs.length / 2) * 100}%`,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.progressCount}>
+                  {activityLogs.length}/2
+                </Text>
+              </View>
             </View>
-            <Text style={styles.upcomingTime}>Today</Text>
-          </View>
-        </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Recent Activities</Text>
+              {activityLogs.slice(0, 2).map((activity) => (
+                <View key={activity._id} style={styles.upcomingItem}>
+                  <Ionicons name="fitness-outline" size={24} color="#666" />
+                  <View style={styles.upcomingContent}>
+                    <Text style={styles.upcomingTitle}>
+                      {activity.activityType}
+                    </Text>
+                    <Text style={styles.upcomingDetails}>
+                      {activity.duration} minutes
+                    </Text>
+                  </View>
+                  <Text style={styles.upcomingTime}>
+                    {new Date(activity.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </View>
     </ScrollView>
   );
@@ -296,5 +413,71 @@ const styles = StyleSheet.create({
   upcomingTime: {
     fontSize: 14,
     color: "#007AFF",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#666",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    padding: 20,
+  },
+  errorText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#FF3B30",
+    textAlign: "center",
+  },
+  retryButton: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: "#007AFF",
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  newUserSection: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  newUserTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  newUserText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  getStartedButton: {
+    backgroundColor: "#007AFF",
+    padding: 12,
+    borderRadius: 8,
+    width: "100%",
+    alignItems: "center",
+  },
+  getStartedButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -10,6 +10,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { format } from "date-fns";
+import { Alert } from "react-native";
+import { useUser } from "@/context/UserContext";
 
 interface Symptom {
   id: string;
@@ -18,7 +20,7 @@ interface Symptom {
 }
 
 const symptoms: Symptom[] = [
-  { id: "anxiety", name: "Anxiety", icon: "brain-outline" },
+  { id: "anxiety", name: "Anxiety", icon: "medical" },
   { id: "depression", name: "Depression", icon: "sad-outline" },
   { id: "sleep", name: "Sleep Issues", icon: "bed-outline" },
 ];
@@ -32,6 +34,8 @@ const moods = [
 ];
 
 export default function LogSymptomsScreen() {
+  const user = useUser();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
@@ -46,9 +50,84 @@ export default function LogSymptomsScreen() {
     );
   };
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    router.back();
+  const handleSave = async () => {
+    if (!selectedMood) {
+      Alert.alert("Missing Information", "Please select your mood");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Map mood selection to intensity (1-10 scale as required by backend)
+      const moodIntensityMap: Record<string, number> = {
+        great: 10,
+        good: 8,
+        okay: 5,
+        bad: 3,
+        awful: 1,
+      };
+
+      // Prepare data for the API
+      const moodData = {
+        mood: selectedMood,
+        intensity: moodIntensityMap[selectedMood] || 5,
+        notes: notes,
+        tags: selectedSymptoms,
+      };
+
+      // Make API request to save mood entry
+      const response = await fetch("http://localhost:3001/api/mood/entries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user?.token}`, // Assuming token is stored in user context
+        },
+        body: JSON.stringify(moodData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save mood entry");
+      }
+
+      // If symptoms were selected, log them as activities
+      if (selectedSymptoms.length > 0) {
+        await Promise.all(
+          selectedSymptoms.map(async (symptom) => {
+            const activityData = {
+              activityType: `symptom_${symptom}`,
+              duration: 1, // Placeholder duration (required by API)
+              notes: `Logged symptom: ${symptom}`,
+            };
+
+            await fetch("http://localhost:3001/api/activities/log", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${user?.token}`,
+              },
+              body: JSON.stringify(activityData),
+            });
+          })
+        );
+      }
+
+      Alert.alert(
+        "Success",
+        "Your symptoms and mood have been logged successfully",
+        [{ text: "OK", onPress: () => router.back() }]
+      );
+    } catch (error) {
+      console.error("Error saving data:", error);
+      Alert.alert(
+        "Error",
+        "There was a problem saving your data. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -83,7 +162,7 @@ export default function LogSymptomsScreen() {
               ]}
               onPress={() => setSelectedMood(mood.id)}>
               <Ionicons
-                name={mood.icon}
+                name={mood.icon as keyof typeof Ionicons.glyphMap}
                 size={24}
                 color={selectedMood === mood.id ? "#007AFF" : "#666"}
               />

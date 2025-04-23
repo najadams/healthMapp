@@ -6,6 +6,8 @@ export interface IMoodEntry extends mongoose.Document {
   intensity: number;
   notes?: string;
   tags?: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const moodEntrySchema = new mongoose.Schema<IMoodEntry>(

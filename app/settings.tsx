@@ -12,6 +12,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useUser, useSetUser } from "@/context/UserContext";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Settings = () => {
   const user = useUser();
@@ -32,6 +33,8 @@ const Settings = () => {
         throw new Error("Logout failed");
       }
 
+      // Remove the token from AsyncStorage
+      await AsyncStorage.removeItem("token");
       setUser(null);
       router.replace("/(auth)/auth");
     } catch (error) {

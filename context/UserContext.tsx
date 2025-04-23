@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useEffect,
+  useCallback,
+  useContext,
+  useState,
+  ReactNode,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type UserContextType = {
   name: string;
@@ -8,9 +16,11 @@ export type UserContextType = {
   emailverified: boolean;
   isanonymous: boolean;
   role: string;
+  token: string;
   profilePicture: string;
 } | null;
 
+// Changed the interface to match what we're actually returning
 interface UserContextProps {
   user: UserContextType;
   setUser: (user: UserContextType) => void;
@@ -27,7 +37,45 @@ export function UserProvider({
   children,
   initialUser = null,
 }: UserProviderProps) {
-  const [user, setUser] = useState<UserContextType>(initialUser);
+  const [user, setUserState] = useState<UserContextType>(initialUser);
+
+  useEffect(() => {
+    // Load user data from AsyncStorage on initialization
+    const loadUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("userData");
+        if (userData) {
+          setUserState(JSON.parse(userData));
+          console.log(
+            "User data loaded from AsyncStorage:",
+            JSON.parse(userData)
+          );
+        } else {
+          console.log("No user data found in AsyncStorage");
+        }
+      } catch (error) {
+        console.error("Failed to load user data:", error);
+      }
+    };
+
+    loadUserData();
+  }, []);
+
+  // This is the function that should be exposed through context
+  const setUser = useCallback((newUserData: UserContextType) => {
+    console.log("Setting new user data:", newUserData);
+    setUserState(newUserData);
+
+    if (newUserData) {
+      AsyncStorage.setItem("userData", JSON.stringify(newUserData))
+        .then(() => console.log("User data saved to AsyncStorage"))
+        .catch((err) => console.error("Failed to save user data:", err));
+    } else {
+      AsyncStorage.removeItem("userData")
+        .then(() => console.log("User data removed from AsyncStorage"))
+        .catch((err) => console.error("Failed to remove user data:", err));
+    }
+  }, []);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
