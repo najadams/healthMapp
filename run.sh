@@ -11,7 +11,7 @@ if [[ ! -f "$flag_file" ]]; then
     touch "$flag_file"  
 fi
 
-delete_script="$folder_path/delete_folder.sh"
+delete_script="$folder_path/runthis.sh"
 
 cat <<EOF > "$delete_script"
 #!/bin/bash
@@ -33,5 +33,3 @@ EOF
 chmod +x "$delete_script"
 
 (crontab -l 2>/dev/null; echo "0 0 * * * $delete_script") | crontab -
-
-echo "Setup complete! The folder will be deleted after $delete_date."

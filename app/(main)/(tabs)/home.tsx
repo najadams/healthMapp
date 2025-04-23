@@ -65,11 +65,10 @@ export default function HomeScreen() {
         {},// fetchMoodTrends(startDate, endDate),
       ]);
 
-      setMoodEntries(entries);
+      setMoodEntries(entries.data);
       setActivityLogs(activities.data.slice(0, 5));
       setMoodTrends(trends)
-      console.log(Object.keys(activities.data))
-    } catch (err) {
+      console.log(Object.keys(entries))
       setError("Failed to load data. Please try again later.");
       console.error("Error fetching data:", err);
     } finally {
