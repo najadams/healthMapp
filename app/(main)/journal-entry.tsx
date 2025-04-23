@@ -6,10 +6,13 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { format } from "date-fns";
+import { useUser } from "@/context/UserContext";
+
 
 interface Activity {
   id: string;
@@ -36,6 +39,8 @@ export default function JournalEntryScreen() {
   const [thoughts, setThoughts] = useState("");
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const currentDate = format(new Date(), "MMMM dd, yyyy");
+  const user = useUser();
+  const [IsSubmitting, setIsSubmitting] = useState(false);
 
   const toggleActivity = (activityId: string) => {
     setSelectedActivities((prev) =>
@@ -45,9 +50,88 @@ export default function JournalEntryScreen() {
     );
   };
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    router.back();
+  const handleSave = async () => {
+    if (!selectedMood) {
+      Alert.alert("Missing Information", "Please select your mood");
+      return;
+    }
+
+    if (!thoughts.trim()) {
+      Alert.alert(
+        "Missing Information",
+        "Please write some thoughts for your journal entry"
+      );
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Prepare journal entry data
+      const journalData = {
+        content: thoughts,
+        mood: selectedMood,
+        tags: selectedActivities,
+        isPrivate: true, // Default to private entries
+      };
+
+      // Send journal entry to backend
+      const response = await fetch(
+        "http://localhost:3001/api/journal/entries",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify(journalData),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to save journal entry");
+      }
+
+      // If activities were selected, log them as well
+      if (selectedActivities.length > 0) {
+        await Promise.all(
+          selectedActivities.map(async (activityId) => {
+            // Find the activity name from our list
+            const activity = defaultActivities.find((a) => a.id === activityId);
+            if (!activity) return;
+
+            const activityData = {
+              activityType: activityId,
+              duration: 30, // Default duration in minutes
+              notes: `Logged from journal: ${activity.name}`,
+            };
+
+            await fetch("http://localhost:3001/api/activities/log", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${user?.token}`,
+              },
+              body: JSON.stringify(activityData),
+            });
+          })
+        );
+      }
+
+      Alert.alert("Success", "Your journal entry has been saved", [
+        { text: "OK", onPress: () => router.back() },
+      ]);
+    } catch (error) {
+      console.error("Error saving journal entry:", error);
+      Alert.alert(
+        "Error",
+        "There was a problem saving your journal entry. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,7 +164,7 @@ export default function JournalEntryScreen() {
                 ]}
                 onPress={() => setSelectedMood(mood.id)}>
                 <Ionicons
-                  name={mood.icon}
+                  name={mood.icon as keyof typeof Ionicons.glyphMap}
                   size={24}
                   color={selectedMood === mood.id ? "#007AFF" : "#666"}
                 />
