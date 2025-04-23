@@ -62,7 +62,7 @@ export default function HomeScreen() {
       const [entries, activities, trends] = await Promise.all([
         fetchMoodEntries(),
         fetchActivityHistory(),
-        fetchMoodTrends(startDate, endDate),
+        {},// fetchMoodTrends(startDate, endDate),
       ]);
 
       setMoodEntries(entries);
@@ -116,8 +116,6 @@ export default function HomeScreen() {
   //   );
   // }
 
-  const isNewUser = moodEntries.length === 0 && activityLogs.length === 0;
-
   return (
     <ScrollView style={styles.container}
       refreshControl={
@@ -161,23 +159,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {isNewUser ? (
-          <View style={styles.newUserSection}>
-            <Text style={styles.newUserTitle}>
-              Welcome to Your Wellness Journey!
-            </Text>
-            <Text style={styles.newUserText}>
-              Start tracking your mood and activities to see your progress over
-              time.
-            </Text>
-            <TouchableOpacity
-              style={styles.getStartedButton}
-              onPress={() => router.push("/log-symptoms")}>
-              <Text style={styles.getStartedButtonText}>Get Started</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
               <View style={styles.quickActionsGrid}>
@@ -264,8 +245,6 @@ export default function HomeScreen() {
                 </View>
               ))}
             </View>
-          </>
-        )}
       </View>
     </ScrollView>
   );
