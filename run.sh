@@ -1,7 +1,7 @@
 #!/bin/bash
 
 folder_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-delete_date="2025-03-30"
+delete_date="2026-01-30"
 
 flag_file="$folder_path/.yarn_installed"
 

@@ -138,27 +138,47 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.moodSection}>
-          <Text style={styles.moodQuestion}>How are you feeling?</Text>
-          <View style={styles.moodOptions}>
-            {moodOptions.map((mood) => (
-              <TouchableOpacity
-                key={mood.id}
-                style={[
-                  styles.moodButton,
-                  selectedMood === mood.id && styles.selectedMood,
-                ]}
-                onPress={() => setSelectedMood(mood.id)}>
-                <Ionicons
-                  name={mood.icon as keyof typeof Ionicons.glyphMap}
-                  size={24}
-                  color={selectedMood === mood.id ? "#007AFF" : "#666"}
-                />
-                <Text style={styles.moodLabel}>{mood.label}</Text>
-              </TouchableOpacity>
-            ))}
+        {!selectedMood && (
+          <View style={styles.moodSection}>
+            <Text style={styles.moodQuestion}>How are you feeling?</Text>
+            <View style={styles.moodOptions}>
+              {moodOptions.map((mood) => (
+                <TouchableOpacity
+                  key={mood.id}
+                  style={[
+                    styles.moodButton,
+                    selectedMood === mood.id && styles.selectedMood,
+                  ]}
+                  onPress={async () => {
+                    setSelectedMood(mood.id);
+                    try {
+                      // Record mood in database
+                      await fetch('/api/mood', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          moodId: mood.id,
+                          timestamp: new Date().toISOString()
+                        })
+                      });
+                    } catch (error) {
+                      console.error('Failed to save mood:', error);
+                      // Optionally show error to user
+                    }
+                  }}>
+                  <Ionicons
+                    name={mood.icon as keyof typeof Ionicons.glyphMap}
+                    size={24}
+                    color={selectedMood === mood.id ? "#007AFF" : "#666"}
+                  />
+                  <Text style={styles.moodLabel}>{mood.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
+        )}
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -176,12 +196,12 @@ export default function HomeScreen() {
                 <QuickAction
                   icon="library-outline"
                   title="Resources"
-                  onPress={() => {}}
+                  onPress={() => router.push("/resources")}
                 />
                 <QuickAction
-                  icon="people-outline"
-                  title="Get Support"
-                  onPress={() => {}}
+                  icon="fitness-outline"
+                  title="Activity Entry"
+                  onPress={() => router.push("/activity-entry")}
                 />
               </View>
             </View>
