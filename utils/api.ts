@@ -78,6 +78,47 @@ export const fetchActivityHistory = async () => {
   }
 };
 
+export const logoutUser = async () => {
+  const token = await AsyncStorage.getItem("token");
+  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error("Logout failed");
+  }
+  
+  await AsyncStorage.removeItem("token");
+  return true;
+};
+
+export const updateUserProfile = async (userData: {
+  name?: string;
+  email?: string;
+  profilePicture?: string;
+}) => {
+  const token = await AsyncStorage.getItem("token");
+  const response = await fetch(`${API_BASE_URL}/user/profile`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update profile");
+  }
+
+  return response.json();
+};
+
 export const fetchMoodTrends = async (startDate: string, endDate: string) => {
   try {
     const token = await AsyncStorage.getItem("token");
@@ -112,6 +153,38 @@ export const fetchMoodTrends = async (startDate: string, endDate: string) => {
     return response.json();
   } catch (error) {
     console.error("Error in fetchMoodTrends:", error);
+    throw error;
+  }
+};
+
+export const fetchJournalEntries = async () => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/journal/entries`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Journal entries fetch failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+      throw new Error(errorData.message || "Failed to fetch journal entries");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error in fetchJournalEntries:", error);
     throw error;
   }
 };

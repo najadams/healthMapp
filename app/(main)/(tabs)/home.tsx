@@ -68,7 +68,8 @@ export default function HomeScreen() {
       setMoodEntries(entries.data);
       setActivityLogs(activities.data.slice(0, 5));
       setMoodTrends(trends)
-      console.log(Object.keys(entries))
+      console.log(Object.keys(activities.data))
+    } catch (err) {
       setError("Failed to load data. Please try again later.");
       console.error("Error fetching data:", err);
     } finally {

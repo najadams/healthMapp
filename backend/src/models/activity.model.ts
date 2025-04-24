@@ -4,9 +4,10 @@ export interface IActivityLog extends mongoose.Document {
   userId: mongoose.Types.ObjectId;
   activityType:
     | "exercise"
+    | "yoga"
     | "meditation"
     | "reading"
-    | "therapy"
+    | "walking"
     | "medication";
   duration: number;
   notes?: string;
@@ -22,7 +23,7 @@ const activityLogSchema = new mongoose.Schema<IActivityLog>(
     },
     activityType: {
       type: String,
-      enum: ["exercise", "meditation", "reading", "therapy", "medication"],
+      enum: ["exercise", "meditation", "reading", "yoga", "walking"],
       required: true,
     },
     duration: {

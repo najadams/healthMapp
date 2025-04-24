@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,37 +8,73 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
+  Modal,
+  TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useUser, useSetUser } from "@/context/UserContext";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { logoutUser, updateUserProfile } from "@/utils/api";
+import * as ImagePicker from 'expo-image-picker';
 
 const Settings = () => {
   const user = useUser();
   const setUser = useSetUser();
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    profilePicture: user?.profilePicture || "",
+  });
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Important for handling cookies/session
-      });
-
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
-
-      // Remove the token from AsyncStorage
-      await AsyncStorage.removeItem("token");
+      await logoutUser();
       setUser(null);
       router.replace("/(auth)/auth");
     } catch (error) {
       Alert.alert("Logout Failed", "There was a problem logging out.");
+    }
+  };
+
+  const handleEditProfile = () => {
+    setEditedUser({
+      name: user?.name || "",
+      email: user?.email || "",
+      profilePicture: user?.profilePicture || "",
+    });
+    setIsEditing(true);
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      const updatedUser = await updateUserProfile(editedUser);
+      setUser(updatedUser);
+      setIsEditing(false);
+      Alert.alert("Success", "Profile updated successfully");
+    } catch (error) {
+      Alert.alert("Update Failed", "Failed to update profile");
+    }
+  };
+
+  const handlePickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets[0].uri) {
+        setEditedUser(prev => ({
+          ...prev,
+          profilePicture: result.assets[0].uri,
+        }));
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to pick image");
     }
   };
 
@@ -63,24 +99,29 @@ const Settings = () => {
         {/* Profile Picture Section */}
         <View style={styles.profileSection}>
           <Image
-            source={{ uri: user.profilePicture }}
+            source={{ 
+              uri: user?.profilePicture || 'https://via.placeholder.com/120'
+            }}
             style={styles.profileImage}
           />
-          <TouchableOpacity style={styles.editIcon}>
+          <TouchableOpacity 
+            style={styles.editIcon}
+            onPress={handlePickImage}>
             <MaterialIcons name="edit" size={24} color="#007BFF" />
           </TouchableOpacity>
         </View>
 
         {/* User Details Section */}
         <View style={styles.detailsSection}>
-          <Text style={styles.userName}>{user.name}</Text>
-          <Text style={styles.userEmail}>{user.email}</Text>
-          <Text style={styles.userRole}>Role: {user.role}</Text>
+          <Text style={styles.userName}>{user?.name}</Text>
+          <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
 
         {/* Quick Actions Section */}
         <View style={styles.actionsSection}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={handleEditProfile}>
             <Text style={styles.actionButtonText}>Edit Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -89,11 +130,53 @@ const Settings = () => {
             <Text style={styles.actionButtonText}>Log Out</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Edit Profile Modal */}
+        <Modal
+          visible={isEditing}
+          animationType="slide"
+          transparent={true}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Edit Profile</Text>
+              
+              <TextInput
+                style={styles.input}
+                value={editedUser.name}
+                onChangeText={(text) => setEditedUser(prev => ({ ...prev, name: text }))}
+                placeholder="Name"
+              />
+              
+              <TextInput
+                style={styles.input}
+                value={editedUser.email}
+                onChangeText={(text) => setEditedUser(prev => ({ ...prev, email: text }))}
+                placeholder="Email"
+                keyboardType="email-address"
+              />
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.cancelButton]}
+                  onPress={() => setIsEditing(false)}>
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[styles.modalButton, styles.saveButton]}
+                  onPress={handleUpdateProfile}>
+                  <Text style={styles.modalButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
+// Add these new styles to your existing StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -165,6 +248,54 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '90%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: '#dc3545',
+  },
+  saveButton: {
+    backgroundColor: '#007BFF',
+  },
+  modalButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
 

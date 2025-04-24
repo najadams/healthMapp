@@ -31,7 +31,7 @@ const AuthScreen = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [isLoadingUser, setIsLoadingUser] = useState(false);
   const setUser = useSetUser();
   const navigation = useNavigation();
   const router = useRouter();
@@ -40,28 +40,33 @@ const AuthScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
-  useEffect(() => {
-    const checkExistingAuth = async () => {
-      try {
-        const [token, userData] = await Promise.all([
-          AsyncStorage.getItem("token"),
-          AsyncStorage.getItem("userData"),
-        ]);
+  // useEffect(() => {
+  //   const checkExistingAuth = async () => {
+  //     try {
+  //       const [token, userData] = await Promise.all([
+  //         AsyncStorage.getItem("token"),
+  //         AsyncStorage.getItem("userData"),
+  //       ]);
 
-        if (token && userData) {
-          const parsedUserData = JSON.parse(userData);
-          setUser(parsedUserData);
-          router.replace("/(main)/(tabs)/home");
-        }
-      } catch (error) {
-        console.error("Error checking authentication status:", error);
-      } finally {
-        setIsLoadingUser(false); // Always set loading to false when done
-      }
-    };
+  //       if (token && userData) {
+  //         const parsedUserData = JSON.parse(userData);
+  //         setUser(parsedUserData);
+  //         router.replace("/(main)/(tabs)/home");
+  //       } else {
+  //         // If no token or userData, ensure we're on the auth screen
+  //         router.replace("/(auth)/auth");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking authentication status:", error);
+  //       // On error, redirect to auth screen
+  //       router.replace("/(auth)/auth");
+  //     } finally {
+  //       setIsLoadingUser(false);
+  //     }
+  //   };
 
-    checkExistingAuth();
-  }, []);
+  //   checkExistingAuth();
+  // }, []);
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -120,13 +125,13 @@ const AuthScreen = () => {
         setIsSignUp(false);
         setError("Registration successful! Please login.");
       } else {
-        // Store both token and userData
+        // Store both token and user data
         await Promise.all([
           AsyncStorage.setItem("token", data.token),
-          AsyncStorage.setItem("userData", JSON.stringify(userData)),
+          AsyncStorage.setItem("userData", JSON.stringify(data.user)), // Use data.user instead of userData
         ]);
 
-        setUser(userData);
+        setUser(data.user); // Use data.user instead of userData
         router.replace("/(main)/(tabs)/home");
       }
     } catch (error: any) {
