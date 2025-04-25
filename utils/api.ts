@@ -1,6 +1,7 @@
 import { MoodEntry } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 const API_BASE_URL = "http://localhost:3001/api";
 
 export const fetchUserProfile = async () => {
@@ -80,7 +81,7 @@ export const fetchActivityHistory = async () => {
 
 export const logoutUser = async () => {
   const token = await AsyncStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+  const response = await fetch(`${API_BASE_URL}/user/auth/logout`, {  // Updated endpoint
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -89,10 +90,15 @@ export const logoutUser = async () => {
   });
   
   if (!response.ok) {
-    throw new Error("Logout failed");
+    throw new Error(response.type);
   }
   
-  await AsyncStorage.removeItem("token");
+  // Clear both token and userData from AsyncStorage
+  await Promise.all([
+    AsyncStorage.removeItem("token"),
+    AsyncStorage.removeItem("userData")
+  ]);
+  
   return true;
 };
 

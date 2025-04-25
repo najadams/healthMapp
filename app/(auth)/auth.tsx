@@ -14,15 +14,12 @@ import {
   TextInput,
   Button,
   Text,
-  Title,
-  ToggleButton,
 } from "react-native-paper";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useSetUser, UserContextType } from "@/context/UserContext";
-import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
@@ -40,33 +37,28 @@ const AuthScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
-  // useEffect(() => {
-  //   const checkExistingAuth = async () => {
-  //     try {
-  //       const [token, userData] = await Promise.all([
-  //         AsyncStorage.getItem("token"),
-  //         AsyncStorage.getItem("userData"),
-  //       ]);
+  useEffect(() => {
+    const checkExistingAuth = async () => {
+      try {
+        const [token, userData] = await Promise.all([
+          AsyncStorage.getItem("token"),
+          AsyncStorage.getItem("userData"),
+        ]);
 
-  //       if (token && userData) {
-  //         const parsedUserData = JSON.parse(userData);
-  //         setUser(parsedUserData);
-  //         router.replace("/(main)/(tabs)/home");
-  //       } else {
-  //         // If no token or userData, ensure we're on the auth screen
-  //         router.replace("/(auth)/auth");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error checking authentication status:", error);
-  //       // On error, redirect to auth screen
-  //       router.replace("/(auth)/auth");
-  //     } finally {
-  //       setIsLoadingUser(false);
-  //     }
-  //   };
+        if (token && userData) {
+          const parsedUserData = JSON.parse(userData);
+          setUser(parsedUserData);
+          router.replace("/(main)/(tabs)/home");
+        }
+      } catch (error) {
+        console.error("Error checking authentication status:", error);
+      } finally {
+        setIsLoadingUser(false);
+      }
+    };
 
-  //   checkExistingAuth();
-  // }, []);
+    checkExistingAuth();
+  }, []);
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
