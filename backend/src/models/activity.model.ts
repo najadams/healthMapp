@@ -2,16 +2,12 @@ import mongoose from "mongoose";
 
 export interface IActivityLog extends mongoose.Document {
   userId: mongoose.Types.ObjectId;
-  activityType:
-    | "exercise"
-    | "yoga"
-    | "meditation"
-    | "reading"
-    | "walking"
-    | "medication";
+  activityType: "exercise" | "meditation" | "reading" | "yoga" | "walking";
   duration: number;
   notes?: string;
   completed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const activityLogSchema = new mongoose.Schema<IActivityLog>(

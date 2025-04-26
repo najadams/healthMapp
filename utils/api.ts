@@ -129,23 +129,18 @@ export const updateUserProfile = async (userData: {
 export const fetchMoodTrends = async (startDate: string, endDate: string) => {
   try {
     const token = await AsyncStorage.getItem("token");
-    console.log(
-      "Fetching mood trends with token:",
-      token ? "present" : "missing"
-    );
-
+    
     if (!token) {
       throw new Error("No authentication token found");
     }
 
     const response = await fetch(
-      `${API_BASE_URL}/mood/trends?startDate=${startDate}&endDate=${endDate}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+      `${API_BASE_URL}/mood/trends?startDate=${startDate}&endDate=${endDate}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

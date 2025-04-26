@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export interface IMoodEntry extends mongoose.Document {
   userId: mongoose.Types.ObjectId;
-  mood: "happy" | "sad" | "anxious" | "calm" | "energetic";
+  mood: "great" | "good" | "okay" | "awful" | "bad";
   intensity: number;
   notes?: string;
   tags?: string[];
@@ -26,7 +26,7 @@ const moodEntrySchema = new mongoose.Schema<IMoodEntry>(
       type: Number,
       required: true,
       min: 1,
-      max: 10,
+      max: 5,
     },
     notes: {
       type: String,

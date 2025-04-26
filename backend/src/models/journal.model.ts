@@ -5,7 +5,8 @@ export interface IJournalEntry extends mongoose.Document {
   content: string;
   mood?: string;
   tags?: string[];
-  isPrivate: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const journalEntrySchema = new mongoose.Schema<IJournalEntry>(
@@ -22,22 +23,13 @@ const journalEntrySchema = new mongoose.Schema<IJournalEntry>(
     mood: {
       type: String,
     },
-    tags: [
-      {
-        type: String,
-      },
-    ],
-    isPrivate: {
-      type: Boolean,
-      default: true,
-    },
+    tags: [{
+      type: String,
+    }],
   },
   {
     timestamps: true,
   }
 );
 
-export const JournalEntry = mongoose.model<IJournalEntry>(
-  "JournalEntry",
-  journalEntrySchema
-);
+export const JournalEntry = mongoose.model<IJournalEntry>("JournalEntry", journalEntrySchema);
