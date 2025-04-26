@@ -96,7 +96,7 @@ const AuthScreen = () => {
         function (value) {
           if (!value) return false;
           // Allow either email format or username format (3+ characters)
-          return Yup.string().email().isValidSync(value) || value.length >= 3;
+          return Yup.string().email().isValidSync(value);
         }
       )
       .required("Required"),
