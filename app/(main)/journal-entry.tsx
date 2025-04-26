@@ -66,7 +66,7 @@ export default function JournalEntryScreen() {
 
     try {
       setIsSubmitting(true);
-
+      
       // Prepare journal entry data
       const journalData = {
         content: thoughts,
@@ -74,7 +74,8 @@ export default function JournalEntryScreen() {
         tags: selectedActivities,
         isPrivate: true, // Default to private entries
       };
-
+      
+      console.log(journalData)
       // Send journal entry to backend
       const response = await fetch(
         "http://localhost:3001/api/journal/entries",

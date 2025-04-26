@@ -2,12 +2,14 @@ import express, { Response } from "express";
 import { auth } from "../middleware/auth.middleware";
 import { ActivityLog } from "../models/activity.model";
 import { AuthRequest } from "../types";
+import { format } from "date-fns";
 
 const router = express.Router();
 
 // Log activity
 router.post("/log", auth, async (req: AuthRequest, res: Response) => {
   try {
+    console.log("coco")
     if (!req.user) {
       return res.status(401).json({ error: "User not authenticated" });
     }
@@ -57,7 +59,9 @@ router.get("/history", auth, async (req: AuthRequest, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
-    const { startDate, endDate, activityType } = req.query;
+    const {endDate, activityType } = req.query;
+
+  const startDate = format(new Date(), "MMMM dd, yyyy");
 
     const query: any = { userId: req.user._id };
 
@@ -92,7 +96,6 @@ router.get("/history", auth, async (req: AuthRequest, res: Response) => {
       ActivityLog.countDocuments(query),
     ]);
 
-    console.log(activityLogs)
     res.json({
       success: true,
       data: activityLogs,

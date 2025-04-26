@@ -61,6 +61,8 @@ export default function ActivityEntryScreen() {
         },
         body: JSON.stringify(activityData),
       });
+      console.log(Object.keys(response))
+      console.log(response.status)
 
       if (!response.ok) {
         throw new Error("Failed to save activity");

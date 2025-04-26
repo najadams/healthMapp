@@ -32,7 +32,7 @@ interface QuickActionProps {
 
 const moodOptions: MoodOption[] = [
   { id: "great", label: "Great", icon: "happy-outline" },
-  { id: "good", label: "Good", icon: "smile-outline" },
+  { id: "good", label: "Good", icon: "happy" },
   { id: "okay", label: "Okay", icon: "sad-outline" },
   { id: "bad", label: "Bad", icon: "sad" },
 ];
@@ -50,8 +50,8 @@ export default function HomeScreen() {
 
   const fetchData = async () => {
     try {
-      console.log("Token:", user ? "Found" : "Not found");
       setIsLoading(true);
+      console.log(user?.token)
       setError(null);
 
       // Get today's date range for mood trends
@@ -61,8 +61,8 @@ export default function HomeScreen() {
 
       const [entries, activities, trends] = await Promise.all([
         fetchMoodEntries(),
-        fetchActivityHistory(),
-        {},// fetchMoodTrends(startDate, endDate),
+        fetchActivityHistory(startDate, endDate),
+        fetchMoodTrends(startDate, endDate), // Re-enable this and pass the dates
       ]);
 
       setMoodEntries(entries.data);

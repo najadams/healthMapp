@@ -47,7 +47,7 @@ export const fetchMoodEntries = async () => {
   }
 };
 
-export const fetchActivityHistory = async () => {
+export const fetchActivityHistory = async (startDate: string, endDate: string) => {
   try {
     const token = await AsyncStorage.getItem("token");
     
@@ -55,7 +55,8 @@ export const fetchActivityHistory = async () => {
       throw new Error("No authentication token found");
     }
 
-    const response = await fetch(`${API_BASE_URL}/activities/history`, { // Changed from activity to activities
+    const response = await fetch(
+      `${API_BASE_URL}/activities/history?startDate=${startDate}&endDate=${endDate}`, { // Changed from activity to activities
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'

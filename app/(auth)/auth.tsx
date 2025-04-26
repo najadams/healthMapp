@@ -37,16 +37,44 @@ const AuthScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
+  // useEffect(() => {
+  //   const checkExistingAuth = async () => {
+  //     try {
+  //       const [token, userData] = await Promise.all([
+  //         AsyncStorage.getItem("token"),
+  //         AsyncStorage.getItem("userData"),
+  //       ]);
+
+  //       if (token && userData) {
+  //         const myDict: { [key: string]: any } = {};
+
+  //         userData.token = token; // No error!
+  //         const parsedUserData = JSON.parse(userData);
+  //         setUser(parsedUserData);
+  //         router.replace("/(main)/(tabs)/home");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking authentication status:", error);
+  //     } finally {
+  //       setIsLoadingUser(false);
+  //     }
+  //   };
+
+  //   checkExistingAuth();
+  // }, []);
+
   useEffect(() => {
     const checkExistingAuth = async () => {
       try {
-        const [token, userData] = await Promise.all([
+        const [token, userDataString] = await Promise.all([
           AsyncStorage.getItem("token"),
           AsyncStorage.getItem("userData"),
         ]);
 
-        if (token && userData) {
-          const parsedUserData = JSON.parse(userData);
+        if (token && userDataString) {
+          const parsedUserData = JSON.parse(userDataString); // Parse the string first
+          parsedUserData.token = token; // Now you can assign!
+
           setUser(parsedUserData);
           router.replace("/(main)/(tabs)/home");
         }
