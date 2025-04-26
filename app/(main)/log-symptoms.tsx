@@ -61,10 +61,10 @@ export default function LogSymptomsScreen() {
 
       // Map mood selection to intensity (1-10 scale as required by backend)
       const moodIntensityMap: Record<string, number> = {
-        great: 10,
-        good: 8,
-        okay: 5,
-        bad: 3,
+        great: 5,
+        good: 4,
+        okay: 3,
+        bad: 2,
         awful: 1,
       };
 

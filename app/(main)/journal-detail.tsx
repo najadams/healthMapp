@@ -6,38 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { fetchJournalEntry } from "@/utils/api";
-
-// Define your API service or data fetching function
-// This should be imported from your API services file in a real app
-const fetchEntryById = async (entryId: string) => {
-  try {
-    // Replace with your actual API call
-    // Example: return api.get(`/journals/${entryId}`);
-
-    // For testing, you can use mock data:
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          entry: {
-            id: entryId,
-            content: "This is a journal entry",
-            mood: "great",
-            createdAt: new Date().toISOString(),
-            tags: ["personal", "thoughts"],
-          },
-        });
-      }, 500);
-    });
-  } catch (error) {
-    console.error("Error fetching entry:", error);
-    throw error;
-  }
-};
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface JournalEntry {
   id: string;
@@ -53,9 +28,11 @@ export default function JournalDetailScreen() {
   const [entry, setEntry] = useState<JournalEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    console.log("this is the id", id)
     const loadJournalEntry = async () => {
       try {
         if (!id) {
@@ -63,10 +40,9 @@ export default function JournalDetailScreen() {
           setLoading(false);
           return;
         }
-        // Call the fetch function, not itself
         const data = await fetchJournalEntry(id as string);
-        console.log(data.entry)
         setEntry(data.entry);
+        setEditedContent(data.entry.content);
       } catch (err) {
         console.error(err);
         setError("Failed to load journal entry");
@@ -77,6 +53,41 @@ export default function JournalDetailScreen() {
 
     loadJournalEntry();
   }, [id]);
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const token = await AsyncStorage.getItem("token");
+      
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await fetch(`http://localhost:3001/api/journal/entries/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          content: editedContent,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update journal entry');
+      }
+
+      const updatedData = await response.json();
+      setEntry(updatedData.entry);
+      setIsEditing(false);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save changes');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -105,9 +116,19 @@ export default function JournalDetailScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.title}>Journal Entry</Text>
-        <TouchableOpacity>
-          <Ionicons name="ellipsis-vertical" size={24} color="#000" />
+        <Text style={styles.title}>Journal Details</Text>
+        <TouchableOpacity onPress={() => {
+          if (isEditing) {
+            handleSave();
+          } else {
+            setIsEditing(true);
+          }
+        }}>
+          <Ionicons 
+            name={isEditing ? "checkmark-outline" : "create-outline"} 
+            size={24} 
+            color="#007AFF" 
+          />
         </TouchableOpacity>
       </View>
 
@@ -125,7 +146,31 @@ export default function JournalDetailScreen() {
           </View>
         </View>
 
-        <Text style={styles.entryContent}>{entry.content}</Text>
+        {isEditing ? (
+          <View style={styles.editContainer}>
+            <TextInput
+              style={styles.editInput}
+              value={editedContent}
+              onChangeText={setEditedContent}
+              multiline
+              autoFocus
+              placeholder="Write your thoughts..."
+            />
+            <View style={styles.editActions}>
+              <TouchableOpacity 
+                style={styles.editButton} 
+                onPress={() => {
+                  setIsEditing(false);
+                  setEditedContent(entry.content);
+                }}
+              >
+                <Text style={styles.editButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.entryContent}>{entry.content}</Text>
+        )}
 
         <View style={styles.tagsContainer}>
           {entry.tags?.map((tag, index) => (
@@ -195,6 +240,35 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 14,
+    color: '#666',
+  },
+  editContainer: {
+    marginBottom: 20,
+  },
+  editInput: {
+    fontSize: 18,
+    color: '#333',
+    lineHeight: 24,
+    padding: 12,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    minHeight: 150,
+    textAlignVertical: 'top',
+  },
+  editActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 12,
+  },
+  editButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+  },
+  editButtonText: {
+    fontSize: 16,
     color: '#666',
   },
   loadingContainer: {

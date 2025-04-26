@@ -94,4 +94,44 @@ router.post("/entries", auth, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Update journal entry
+router.patch("/entries/:id", auth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    const { content } = req.body;
+    
+    if (!content) {
+      return res.status(400).json({ error: "Content is required" });
+    }
+
+    const entry = await JournalEntry.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
+    if (!entry) {
+      return res.status(404).json({
+        success: false,
+        error: "Journal entry not found",
+      });
+    }
+
+    entry.content = content;
+    await entry.save();
+
+    res.json({
+      success: true,
+      entry,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to update journal entry",
+    });
+  }
+});
+
 export default router;
