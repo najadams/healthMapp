@@ -80,11 +80,14 @@ export default function JournalHistoryScreen() {
             <TouchableOpacity
               key={index}
               style={styles.journalItem}
-              onPress={() =>
-                router.push({
-                  pathname: "/journal-detail",
-                  params: { id: entry.id },
-                })
+                  onPress={() => {
+                    console.log("Entry ID:", entry._id);
+                   router.push({
+                     pathname: "/journal-detail",
+                     params: { id: entry._id },
+                   });
+              }
+               
               }>
               <View style={styles.journalHeader}>
                 <Text style={styles.journalDate}>

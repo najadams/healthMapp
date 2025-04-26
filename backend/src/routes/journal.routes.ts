@@ -2,6 +2,7 @@ import express, { Response } from "express";
 import { auth } from "../middleware/auth.middleware";
 import { JournalEntry } from "../models/journal.model";
 import { AuthRequest } from "../types";
+import { error } from "console";
 
 const router = express.Router();
 
@@ -24,6 +25,37 @@ router.get("/entries", auth, async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: error.message || "Failed to fetch journal entries",
+    });
+  }
+});
+
+// Get specific journal entry by ID
+router.get("/entries/:id", auth, async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    console.log(req.params)
+    const entry = await JournalEntry.findOne({
+      _id: req.params.id,
+    });
+    console.log("this is the Journal \n ", entry)
+
+    if (!entry) {
+      return res.status(404).json({
+        success: false,
+        error: "Journal entry not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      entry,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to fetch journal entry",
     });
   }
 });

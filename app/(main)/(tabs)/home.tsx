@@ -51,7 +51,6 @@ export default function HomeScreen() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      console.log(user?.token)
       setError(null);
 
       // Get today's date range for mood trends
@@ -68,7 +67,6 @@ export default function HomeScreen() {
       setMoodEntries(entries.data);
       setActivityLogs(activities.data.slice(0, 5));
       setMoodTrends(trends)
-      console.log(Object.keys(activities.data))
     } catch (err) {
       setError("Failed to load data. Please try again later.");
       console.error("Error fetching data:", err);

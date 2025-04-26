@@ -68,7 +68,6 @@ export function UserProvider({
 
     if (newUserData) {
       AsyncStorage.setItem("userData", JSON.stringify(newUserData))
-        .then(() => console.log("User data saved to AsyncStorage"))
         .catch((err) => console.error("Failed to save user data:", err));
     } else {
       AsyncStorage.removeItem("userData")

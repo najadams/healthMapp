@@ -60,7 +60,7 @@ export default function TrackScreen() {
 
       setMoodTrends(trendsData.data);
       setActivities(activitiesData.data.slice(0, 3)); // Show only latest 3 activities
-      setJournalEntries(journalData.entries.slice(-3, -1)); // Show only latest 3 entries
+      setJournalEntries(journalData.entries.slice(-3)); // Fix: Change from slice(-3, -1) to slice(-3)
     } catch (err) {
       console.error(err);
       setError("Failed to load data. Please try again later.");
@@ -277,11 +277,13 @@ export default function TrackScreen() {
               <TouchableOpacity
                 key={index}
                 style={styles.journalItem}
-                onPress={() =>
+                onPress={() => {
+                  console.log(entry._id)
                   router.push({
                     pathname: "/journal-detail",
-                    params: { id: entry.id }
+                    params: { id: entry._id}
                   })
+                }
                 }>
                 <View style={styles.journalHeader}>
                   <Text style={styles.journalDate}>

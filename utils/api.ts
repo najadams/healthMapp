@@ -190,3 +190,35 @@ export const fetchJournalEntries = async () => {
     throw error;
   }
 };
+
+export const fetchJournalEntry = async (id: string) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/journal/entries/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Journal entry fetch failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+      });
+      throw new Error(errorData.message || "Failed to fetch journal entry");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error in fetchJournalEntry:", error);
+    throw error;
+  }
+};
