@@ -34,7 +34,8 @@ const moodOptions: MoodOption[] = [
   { id: "great", label: "Great", icon: "happy-outline" },
   { id: "good", label: "Good", icon: "happy" },
   { id: "okay", label: "Okay", icon: "sad-outline" },
-  { id: "bad", label: "Bad", icon: "sad" },
+  { id: "bad", label: "Bad", icon: "sad-outline" },
+  { id: "bad", label: "Awful", icon: "sad" }, // This has the same id as the previous option
 ];
 
 export default function HomeScreen() {
@@ -100,20 +101,20 @@ export default function HomeScreen() {
     );
   }
 
-  // if (error) {
-  //   console.log(Object.keys(error));
-  //   return (
-  //     <View style={styles.errorContainer}>
-  //       <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />
-  //       <Text style={styles.errorText}>{error}</Text>
-  //       <TouchableOpacity
-  //         style={styles.retryButton}
-  //         onPress={() => router.replace("/(main)/(tabs)/home")}>
-  //         <Text style={styles.retryButtonText}>Retry</Text>
-  //       </TouchableOpacity>
-  //     </View>
-  //   );
-  // }
+  if (error) {
+    console.log(Object.keys(error));
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => router.replace("/(main)/(tabs)/home")}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}

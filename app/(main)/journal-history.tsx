@@ -80,14 +80,11 @@ export default function JournalHistoryScreen() {
             <TouchableOpacity
               key={index}
               style={styles.journalItem}
-                  onPress={() => {
-                    console.log("Entry ID:", entry._id);
-                   router.push({
-                     pathname: "/journal-detail",
-                     params: { id: entry._id },
-                   });
-              }
-               
+              onPress={() =>
+                router.push({
+                  pathname: "/journal-detail",
+                  params: { id: entry.id },
+                })
               }>
               <View style={styles.journalHeader}>
                 <Text style={styles.journalDate}>
@@ -95,7 +92,9 @@ export default function JournalHistoryScreen() {
                 </Text>
                 <View style={styles.moodIndicator}>
                   <Ionicons
-                    name={entry.mood === "great" ? "happy-outline" : "sad-outline"}
+                    name={
+                      entry.mood === "great" ? "happy-outline" : "sad-outline"
+                    }
                     size={20}
                     color="#666"
                   />
