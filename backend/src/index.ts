@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.routes";
 import moodRoutes from "./routes/mood.routes";
 import journalRoutes from "./routes/journal.routes"; 
 import activityRoutes from "./routes/activity.routes";
+import chatRoutes from "./routes/chat.routes";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/mood", moodRoutes);
 app.use("/api/journal", journalRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/api/chats", chatRoutes);
 
 // Database connection
 mongoose

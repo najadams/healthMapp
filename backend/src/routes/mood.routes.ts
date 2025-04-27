@@ -58,12 +58,34 @@ router.get("/entries", auth, async (req: AuthRequest, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
+    const { startDate, endDate } = req.query;
+    const query: any = { userId: req.user._id };
+
+    // Add date range filter if provided
+    if (startDate && endDate) {
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return res.status(400).json({ error: "Invalid date format" });
+      }
+
+      if (start > end) {
+        return res.status(400).json({ error: "Start date must be before end date" });
+      }
+
+      query.createdAt = {
+        $gte: start,
+        $lte: end,
+      };
+    }
+
     const [moodEntries, total] = await Promise.all([
-      MoodEntry.find({ userId: req.user._id })
+      MoodEntry.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      MoodEntry.countDocuments({ userId: req.user._id }),
+      MoodEntry.countDocuments(query),
     ]);
 
     res.json({

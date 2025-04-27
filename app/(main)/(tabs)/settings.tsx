@@ -32,9 +32,6 @@ const Settings = () => {
 
   // App preferences states
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
-  const [autoPlayVideos, setAutoPlayVideos] = useState(true);
-  const [dataUsageOptimization, setDataUsageOptimization] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const [selectedTheme, setSelectedTheme] = useState("Default");
   const [fontSize, setFontSize] = useState("Medium");
@@ -308,42 +305,18 @@ const Settings = () => {
           />
 
           <SettingsOption
-            icon="moon"
-            title="Dark Mode"
-            value={darkModeEnabled}
-            onPress={() => setDarkModeEnabled(!darkModeEnabled)}
-            isSwitch={true}
-          />
-
-          <SettingsOption
-            icon="play-circle"
-            title="Auto-play Videos"
-            value={autoPlayVideos}
-            onPress={() => setAutoPlayVideos(!autoPlayVideos)}
-            isSwitch={true}
-          />
-
-          <SettingsOption
-            icon="cellular"
-            title="Data Usage Optimization"
-            value={dataUsageOptimization}
-            onPress={() => setDataUsageOptimization(!dataUsageOptimization)}
-            isSwitch={true}
-          />
-
-          <SettingsOption
             icon="language"
             title="Language"
             value={selectedLanguage}
             onPress={() => setShowLanguageModal(true)}
           />
 
-          <SettingsOption
+          {/* <SettingsOption
             icon="color-palette"
             title="Theme"
             value={selectedTheme}
             onPress={() => setShowThemeModal(true)}
-          />
+          /> */}
 
           <SettingsOption
             icon="text"

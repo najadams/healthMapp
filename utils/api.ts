@@ -15,7 +15,37 @@ export const fetchUserProfile = async () => {
   return response.json();
 };
 
-export const fetchMoodEntries = async () => {
+export const fetchChats = async () => {
+  try {
+    // For development, use your actual API endpoint
+    const response = await fetch(`http://${API_B}/api/chats`, {
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch chats");
+    }
+
+    const data = await response.json();
+    // Combine default contacts with fetched chats, avoiding duplicates
+    const uniqueChats = [...defaultContacts];
+    data.chats.forEach((chat: Chat) => {
+      if (!uniqueChats.some((c) => c.id === chat.id)) {
+        uniqueChats.push(chat);
+      }
+    });
+    setChats(uniqueChats);
+  } catch (error) {
+    console.error("Error fetching chats:", error);
+    // Show default contacts as fallback
+    setChats(defaultContacts);
+  } finally {
+    setLoading(false);
+  }
+};
+export const fetchMoodEntries = async (startDate : string, endDate : string) => {
   try {
     const token = await AsyncStorage.getItem("token");
     
@@ -23,7 +53,7 @@ export const fetchMoodEntries = async () => {
       throw new Error("No authentication token found");
     }
 
-    const response = await fetch(`${API_BASE_URL}/mood/entries`, {
+    const response = await fetch(`${API_BASE_URL}/mood/entries?startDate=${startDate}&endDate=${endDate}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'

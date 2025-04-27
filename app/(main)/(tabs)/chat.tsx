@@ -90,7 +90,7 @@ export default function ChatScreen() {
       setError(null);
       
       // For development, use your actual API endpoint
-      const response = await fetch("http://your-api-endpoint/api/chats", {
+      const response = await fetch(`http://${API_B}/api/chats`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },

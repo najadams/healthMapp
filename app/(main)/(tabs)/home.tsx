@@ -60,7 +60,7 @@ export default function HomeScreen() {
       const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
       const [entries, activities, trends] = await Promise.all([
-        fetchMoodEntries(),
+        fetchMoodEntries(startDate, endDate),
         fetchActivityHistory(startDate, endDate),
         fetchMoodTrends(startDate, endDate), // Re-enable this and pass the dates
       ]);
@@ -220,12 +220,12 @@ export default function HomeScreen() {
                     style={[
                       styles.progressBar,
                       {
-                        width: `${(moodEntries.length / 4) * 100}%`,
+                        width: `${(moodEntries.length / 5) * 100}%`,
                       },
                     ]}
                   />
                 </View>
-                <Text style={styles.progressCount}>{moodEntries.length}/4</Text>
+                <Text style={styles.progressCount}>{moodEntries.length}/5</Text>
               </View>
 
               <View style={styles.progressItem}>
