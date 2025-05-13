@@ -1,0 +1,86 @@
+version: "3.1"
+
+# stories:
+#   - story: anxiety path
+#     steps:
+#       - intent: greet
+#       - action: utter_greet
+#       - intent: anxiety_symptoms
+#       - action: utter_anxiety_support
+#       - intent: goodbye
+#       - action: utter_goodbye
+
+#   - story: depression path
+#     steps:
+#       - intent: greet
+#       - action: utter_greet
+#       - intent: depression_symptoms
+#       - action: utter_depression_support
+#       - intent: goodbye
+#       - action: utter_goodbye
+
+#   - story: sleep issues path
+#     steps:
+#       - intent: greet
+#       - action: utter_greet
+#       - intent: sleep_issues
+#       - action: utter_sleep_advice
+#       - intent: goodbye
+#       - action: utter_goodbye
+
+#   - story: medical question path
+#     steps:
+#       - intent: medical_question
+#       - action: utter_medical_disclaimer
+
+stories:
+- story: User greets and feels sad
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: mood_sad
+  - action: utter_empathize_sad
+  - action: utter_suggest_coping
+  - intent: affirm
+  - action: utter_affirm
+- story: User feels sad but declines help
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: mood_sad
+  - action: utter_empathize_sad
+  - action: utter_suggest_coping
+  - intent: deny
+  - action: utter_deny
+- story: User reports anxiety and duration
+  steps:
+  - intent: mood_anxious
+  - action: utter_empathize_anxious
+  - action: utter_ask_symptom_duration
+  - intent: ask_symptom_duration
+  - action: utter_provide_resources
+- story: User is happy
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: mood_happy
+  - action: utter_celebrate_happy
+- story: User asks for resources
+  steps:
+  - intent: ask_resources
+  - action: utter_provide_resources
+  - intent: thank_you
+  - action: utter_thank_you
+- story: User goes off-topic
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: out_of_scope
+  - action: utter_out_of_scope
+- story: User reports anxiety but goes off-topic
+  steps:
+  - intent: mood_anxious
+  - action: utter_empathize_anxious
+  - action: utter_ask_symptom_duration
+  - intent: out_of_scope
+  - action: utter_out_of_scope

@@ -1,0 +1,114 @@
+version: "3.1"
+
+# intents:
+#   - greet
+#   - goodbye
+#   - anxiety_symptoms
+#   - depression_symptoms
+#   - sleep_issues
+#   - medical_question
+
+# responses:
+#   utter_greet:
+#     - text: "Hello! I'm your mental health assistant. How can I help you today?"
+#     - text: "Hi there! I'm here to support you with your mental health concerns. What's on your mind?"
+
+#   utter_goodbye:
+#     - text: "Goodbye. Remember, it's okay to reach out whenever you need support."
+#     - text: "Take care of yourself. I'm here if you need to talk again."
+
+#   utter_anxiety_support:
+#     - text: "Anxiety can be challenging to deal with. Deep breathing exercises can help in the moment. Try breathing in for 4 counts, hold for 4, and exhale for 6."
+#     - text: "I understand anxiety can feel overwhelming. Grounding techniques like the 5-4-3-2-1 method might help: name 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste."
+
+#   utter_depression_support:
+#     - text: "Depression is difficult, but you're not alone. Small steps like getting some sunlight or talking to someone you trust can help."
+#     - text: "I'm sorry you're feeling this way. Depression can make everything seem harder. Remember that seeking professional help is a sign of strength, not weakness."
+
+#   utter_sleep_advice:
+#     - text: "Sleep problems can affect your mental health. Try establishing a regular sleep schedule and avoiding screens an hour before bed."
+#     - text: "For better sleep, consider creating a calming bedtime routine and making your bedroom comfortable, dark, and quiet."
+
+#   utter_medical_disclaimer:
+#     - text: "I'm not a medical professional and can't provide medical advice. It's important to consult with a healthcare provider for medical concerns."
+#     - text: "For medical questions, it's best to speak with a qualified healthcare professional who can provide personalized advice based on your specific situation."
+
+#   utter_crisis_resources:
+#     - text: "If you're in crisis, please reach out to a Crisis helpline immediately at 988 (US) or go to your nearest emergency room. Your life matters."
+
+# session_config:
+#   session_expiration_time: 60
+#   carry_over_slots_to_new_session: true
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_sad
+  - mood_anxious
+  - mood_happy
+  - crisis_suicidal
+  - ask_resources
+  - ask_symptom_duration
+  - thank_you
+  - bot_challenge
+  - out_of_scope
+  - medical_question
+
+entities:
+  - symptom
+  - duration
+
+slots:
+  symptom:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: symptom
+  duration:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: duration
+
+responses:
+  utter_medical_disclaimer:
+  - text: "I'm not a medical professional and can't provide medical advice. It's important to consult with a healthcare provider for medical concerns."
+  - text: "For medical questions, it's best to speak with a qualified healthcare professional who can provide personalized advice based on your specific situation."
+  utter_greet:
+    - text: "Hello! I'm here to support you. How are you feeling today?"
+  utter_goodbye:
+    - text: "Take care, and feel free to reach out anytime. Goodbye."
+  utter_affirm:
+    - text: "I'm glad you're open to talking. How can I help you further?"
+  utter_deny:
+    - text: "That's okay. I'm here whenever you're ready to talk."
+  utter_empathize_sad:
+    - text: "I'm really sorry you're feeling down. Would you like to share more, or maybe try some calming strategies together?"
+  utter_empathize_anxious:
+    - text: "It sounds really tough to feel anxious. I'm here for you. Would you like to talk about what's been going on?"
+  utter_celebrate_happy:
+    - text: "That's wonderful to hear! What's got you in such a great mood today?"
+  utter_crisis_response:
+    - text: "I'm so sorry you're feeling this way, and I'm here to help. Your life matters, and there are people who can support you right now. Would you like me to share some resources, like a hotline you can call?"
+  utter_provide_hotline:
+    - text: "Please consider reaching out to a professional. In the US, you can call the National Suicide Prevention Lifeline at 1-800-273-8255 or text 'HOME' to the Crisis Text Line at 741741. If you're outside the US, I can help find a local resource. Would you like that?"
+  utter_suggest_coping:
+    - text: "Here are a few things that might help: deep breathing (inhale for 4, hold for 4, exhale for 4), journaling your thoughts, or taking a short walk. Would you like to try one of these, or is there something else that helps you?"
+  utter_ask_symptom_duration:
+    - text: "Thanks for sharing. How long have you been feeling this way?"
+  utter_provide_resources:
+    - text: "There are some great resources available. You can find therapists through BetterHelp or Talkspace, or try apps like Calm for relaxation techniques. Would you like more specific suggestions?"
+  utter_thank_you:
+    - text: "You're very welcome. I'm here anytime you need me."
+  utter_iamabot:
+    - text: "I'm Grok, a supportive AI created by xAI. I'm here to listen and provide resources, but I'm not a therapist. How can I assist you today?"
+  utter_out_of_scope:
+    - text: "I'm not sure I can help with that, but I'm here for you. Want to talk about how you're feeling?"
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

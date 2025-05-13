@@ -1,0 +1,185 @@
+# version: "3.1"
+
+# nlu:
+#   - intent: greet
+#     examples: |
+#       - hello
+#       - hi
+#       - hey
+#       - good morning
+#       - good evening
+#       - how are you
+
+#   - intent: goodbye
+#     examples: |
+#       - bye
+#       - goodbye
+#       - see you later
+#       - talk to you soon
+
+#   - intent: anxiety_symptoms
+#     examples: |
+#       - I feel anxious all the time
+#       - My heart is racing
+#       - I can't stop worrying
+#       - I'm having panic attacks
+#       - I feel nervous about everything
+#       - My anxiety is getting worse
+#       - I'm constantly on edge
+
+#   - intent: depression_symptoms
+#     examples: |
+#       - I feel sad all the time
+#       - I've lost interest in things I used to enjoy
+#       - I feel hopeless
+#       - I don't see a point in anything
+#       - I'm always tired
+#       - I can't concentrate on anything
+#       - I feel worthless
+
+#   - intent: sleep_issues
+#     examples: |
+#       - I can't sleep
+#       - I'm having trouble falling asleep
+#       - I wake up in the middle of the night
+#       - My sleep is disturbed
+#       - I have insomnia
+#       - I'm not getting enough rest
+#       - I feel tired even after sleeping
+
+#   - intent: medical_question
+#     examples: |
+#       - Is this a symptom of something serious?
+#       - Do I need to see a doctor?
+#       - What'medication should I take?
+#       - Are there side effects to my medication?
+#       - How long will my treatment take?
+#       - Is this condition chronic?
+#       - Can this be cured?
+#       - What'are the treatment options?
+
+version: "6.0"
+
+nlu:
+- intent: greet
+  examples: |
+    - hi
+    - hello
+    - hey
+    - good morning
+    - what's up
+    - yo
+    - hiya
+    - sup
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you later
+    - take care
+    - I'm done
+    - gotta go
+    - catch you later
+- intent: affirm
+  examples: |
+    - yes
+    - yeah
+    - sure
+    - okay
+    - definitely
+    - sounds good
+    - absolutely
+- intent: deny
+  examples: |
+    - no
+    - nope
+    - not really
+    - nah
+    - I don’t think so
+    - no thanks
+    - not now
+- intent: mood_sad
+  examples: |
+    - I feel really down
+    - I'm so sad today
+    - I can’t stop crying
+    - Everything feels hopeless
+    - I’m feeling [depression](symptom)
+    - I’ve been super low lately
+    - I’m just not myself
+    - I feel empty
+    - Life’s been tough
+- intent: mood_anxious
+  examples: |
+    - I’m so anxious
+    - I can’t stop worrying
+    - My heart’s racing
+    - I feel [anxiety](symptom) all the time
+    - I’m freaking out
+    - I’m super stressed
+    - I can’t calm down
+    - I’m on edge
+    - I’m panicking
+- intent: mood_happy
+  examples: |
+    - I’m feeling great today
+    - I’m so happy
+    - Things are going well
+    - I’m in a good mood
+    - Life’s awesome right now
+    - I’m excited
+    - I’m thrilled
+- intent: crisis_suicidal
+  examples: |
+    - I don't want to live anymore
+    - I’m thinking of ending it
+    - Life isn’t worth living
+    - I want to die
+    - I’m feeling suicidal
+    - I can’t go on like this
+    - I’m at my breaking point
+- intent: ask_resources
+  examples: |
+    - Can you help me find a therapist?
+    - What'should I do if I’m anxious?
+    - Are there any hotlines for support?
+    - Where can I get help?
+    - I need mental health resources
+    - Suggest some coping strategies
+    - Can you recommend an app?
+- intent: ask_symptom_duration
+  examples: |
+    - I’ve been feeling this way for [a week](duration)
+    - It started [two days ago](duration)
+    - For about [a month](duration) now
+    - Since [last Tuesday](duration)
+    - It’s been [three weeks](duration)
+    - I’ve had [anxiety](symptom) for [a few days](duration)
+    - About [two weeks](duration)
+- intent: thank_you
+  examples: |
+    - thanks
+    - thank you
+    - appreciate it
+    - thanks a lot
+    - you’re awesome
+    - grateful for your help
+    - cheers
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - who are you?
+    - what'are you?
+    - are you human?
+    - what's your deal?
+    - who made you?
+    - are you real?
+- intent: out_of_scope
+  examples: |
+    - what's the weather like?
+    - tell me a joke
+    - what's your favorite color?
+    - can you sing?
+    - how's the stock market?
+    - what's for dinner?
+    - what's the time?
