@@ -35,14 +35,11 @@ router.patch('/profile', auth, async (req: AuthRequest, res: Response) => {
 // Add logout route
 router.post('/auth/logout', auth, async (req: AuthRequest, res: Response) => {
   try {
+    console.log("tried logout")
     if (!req.user) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
     
-    // Here you could implement additional logout logic like:
-    // - Invalidating the token
-    // - Clearing any server-side sessions
-    // - Logging the logout event
     
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {

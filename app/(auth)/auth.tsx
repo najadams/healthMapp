@@ -21,6 +21,10 @@ import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { useSetUser, UserContextType } from "@/context/UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+
+// Replace with your computer's IP address
+const API_BASE_URL = "http://localhost:3001";
 
 const { width } = Dimensions.get("window");
 
@@ -28,7 +32,7 @@ const AuthScreen = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingUser, setIsLoadingUser] = useState(false);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const setUser = useSetUser();
   const navigation = useNavigation();
   const router = useRouter();
@@ -37,49 +41,47 @@ const AuthScreen = () => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
 
-  // useEffect(() => {
-  //   const checkExistingAuth = async () => {
-  //     try {
-  //       const [token, userData] = await Promise.all([
-  //         AsyncStorage.getItem("token"),
-  //         AsyncStorage.getItem("userData"),
-  //       ]);
-
-  //       if (token && userData) {
-  //         const myDict: { [key: string]: any } = {};
-
-  //         userData.token = token; // No error!
-  //         const parsedUserData = JSON.parse(userData);
-  //         setUser(parsedUserData);
-  //         router.replace("/(main)/(tabs)/home");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error checking authentication status:", error);
-  //     } finally {
-  //       setIsLoadingUser(false);
-  //     }
-  //   };
-
-  //   checkExistingAuth();
-  // }, []);
-
   useEffect(() => {
     const checkExistingAuth = async () => {
       try {
+        // First check if we have stored credentials
         const [token, userDataString] = await Promise.all([
           AsyncStorage.getItem("token"),
           AsyncStorage.getItem("userData"),
         ]);
 
         if (token && userDataString) {
-          const parsedUserData = JSON.parse(userDataString); // Parse the string first
-          parsedUserData.token = token; // Now you can assign!
-
-          setUser(parsedUserData);
-          router.replace("/(main)/(tabs)/home");
+          const parsedUserData = JSON.parse(userDataString);
+          
+          // Validate the token with the server
+          try {
+            const response = await axios.get(`${API_BASE_URL}/api/user/profile`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            // If we get here, the token is valid
+            parsedUserData.token = token;
+            setUser(parsedUserData);
+            router.replace("/(main)/(tabs)/home");
+          } catch (apiError) {
+            console.log("Token validation failed:", apiError);
+            // Token is invalid, clear storage and stay on auth screen
+            await Promise.all([
+              AsyncStorage.removeItem("token"),
+              AsyncStorage.removeItem("userData")
+            ]);
+          }
         }
       } catch (error) {
         console.error("Error checking authentication status:", error);
+        // Clear any potentially corrupted data
+        await Promise.all([
+          AsyncStorage.removeItem("token"),
+          AsyncStorage.removeItem("userData")
+        ]);
       } finally {
         setIsLoadingUser(false);
       }
@@ -127,7 +129,7 @@ const AuthScreen = () => {
       setError("");
 
       const endpoint = isSignUp ? "/api/auth/register" : "/api/auth/login";
-      const response = await fetch(`http://localhost:3001${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,10 +150,10 @@ const AuthScreen = () => {
         // Store both token and user data
         await Promise.all([
           AsyncStorage.setItem("token", data.token),
-          AsyncStorage.setItem("userData", JSON.stringify(data.user)), // Use data.user instead of userData
+          AsyncStorage.setItem("userData", JSON.stringify(data.user)),
         ]);
 
-        setUser(data.user); // Use data.user instead of userData
+        setUser(data.user);
         router.replace("/(main)/(tabs)/home");
       }
     } catch (error: any) {

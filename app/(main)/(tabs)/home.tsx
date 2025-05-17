@@ -68,6 +68,8 @@ export default function HomeScreen() {
       setMoodEntries(entries.data);
       setActivityLogs(activities.data.slice(0, 5));
       setMoodTrends(trends)
+
+      console.log(moodEntries)
     } catch (err) {
       setError("Failed to load data. Please try again later.");
       console.error("Error fetching data:", err);
@@ -102,7 +104,7 @@ export default function HomeScreen() {
   }
 
   if (error) {
-    console.log(Object.keys(error));
+    console.log(error)
     return (
       <View style={styles.errorContainer}>
         <Ionicons name="alert-circle-outline" size={48} color="#FF3B30" />

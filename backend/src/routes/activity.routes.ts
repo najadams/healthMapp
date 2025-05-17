@@ -9,7 +9,6 @@ const router = express.Router();
 // Log activity
 router.post("/log", auth, async (req: AuthRequest, res: Response) => {
   try {
-    console.log("coco")
     if (!req.user) {
       return res.status(401).json({ error: "User not authenticated" });
     }

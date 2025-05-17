@@ -32,6 +32,10 @@ app.use("/api/journal", journalRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/ai-chat", aiChatRoutes);
+app.get("/", (req, res) => {
+  console.log('cloilkdsjf')
+  res.send("Hello World!");
+})
 
 // Database connection
 mongoose
@@ -47,7 +51,6 @@ mongoose
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 const HOST = "localhost"; // Changed from 0.0.0.0 to localhost
 
-app.listen(PORT, HOST, () => {
-  console.log(`Server is running on http://${HOST}:${PORT}`);
-  console.log(`Server is accessible at http://localhost:${PORT}`);
+app.listen(PORT,() => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

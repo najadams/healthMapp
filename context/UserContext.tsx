@@ -46,10 +46,6 @@ export function UserProvider({
         const userData = await AsyncStorage.getItem("userData");
         if (userData) {
           setUserState(JSON.parse(userData));
-          console.log(
-            "User data loaded from AsyncStorage:",
-            JSON.parse(userData)
-          );
         } else {
           console.log("No user data found in AsyncStorage");
         }
@@ -63,7 +59,6 @@ export function UserProvider({
 
   // This is the function that should be exposed through context
   const setUser = useCallback((newUserData: UserContextType) => {
-    console.log("Setting new user data:", newUserData);
     setUserState(newUserData);
 
     if (newUserData) {

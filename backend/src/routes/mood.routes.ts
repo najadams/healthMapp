@@ -53,6 +53,7 @@ router.get("/entries", auth, async (req: AuthRequest, res: Response) => {
     if (!req.user) {
       return res.status(401).json({ error: "User not authenticated" });
     }
+    console.log("tried entries")
 
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
